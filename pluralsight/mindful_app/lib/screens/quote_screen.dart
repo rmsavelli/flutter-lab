@@ -19,12 +19,12 @@ class _QuoteScreenState extends State<QuoteScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchQuote().then((value) {
-      quote = value;
-      setState(() {
+    // _fetchQuote().then((value) {
+    //   quote = value;
+    //   setState(() {
         
-      });
-    });
+    //   });
+    // });
   }
 
   @override
@@ -38,35 +38,43 @@ class _QuoteScreenState extends State<QuoteScreen> {
             icon: const Icon(Icons.settings)),
           IconButton(
             onPressed: () {
-              _fetchQuote().then((value) {
-                setState(() {
-                quote = value;
-              });
-            });
+              _fetchQuote();
             },
             icon: const Icon(Icons.refresh)),
         ],        
         ),
-      body: Center(child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(quote.text,
-              style: const TextStyle(
-                fontSize: 24,
-                fontStyle: FontStyle.italic,
-              ),
+      body: FutureBuilder(
+        future: _fetchQuote(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(),);
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error; ${snapshot.error}'),);
+          } else {
+            Quote quote = snapshot.data!;
+            return Center(child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(quote.text,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+                Text(quote.author,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            Text(quote.author,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      )),
+          ));
+          }
+        }
+      ),
     );
   }
 
