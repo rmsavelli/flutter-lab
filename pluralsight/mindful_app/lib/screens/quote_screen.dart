@@ -22,7 +22,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
     // _fetchQuote().then((value) {
     //   quote = value;
     //   setState(() {
-        
     //   });
     // });
   }
@@ -38,7 +37,11 @@ class _QuoteScreenState extends State<QuoteScreen> {
             icon: const Icon(Icons.settings)),
           IconButton(
             onPressed: () {
-              _fetchQuote();
+              _fetchQuote().then((value) {
+                setState(() {
+                  
+                });
+              });
             },
             icon: const Icon(Icons.refresh)),
         ],        
