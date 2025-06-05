@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindful_app/data/sp_helper.dart';
+import 'package:mindful_app/screens/quote_screen.dart';
 import 'package:mindful_app/screens/settings_screen.dart';
 
 
@@ -56,7 +57,7 @@ class _IntroScreenState extends State<IntroScreen> {
             onPressed: (){
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (BuildContext context) => const SettingsScreen())
+                  builder: (BuildContext context) => const QuoteScreen())
               );
             },          
             child: const Text('Start')),
