@@ -11,8 +11,9 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController txtName = TextEditingController();
-  final List<String> _images = ['Lake', 'Montain', 'Sea', 'Country'];
+  final List<String> _images = ['Lake', 'Mountain', 'Sea', 'Country'];
   String _selectedImage = 'Lake';
+  final SpHelper helper = SpHelper();
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             }).toList(),
             onChanged: (newValue) {
               setState(() {
-                _selectedImage = newValue ?? 'Lake';              
+                _selectedImage = newValue ?? 'Lake';
               });
             }),
           ],
@@ -49,25 +50,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          saveSettings();
+          saveSettings().then((value) {
+            String message = value
+              ? 'The settings have been saved'
+              : 'Error: the settings were not saved';
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(message),
+                duration: const Duration(seconds: 3),)
+              );
+          });
         },
         child: const Icon(Icons.save),
       ),
     ); 
   }
 
-  Future saveSettings() async {
-    final SpHelper helper = SpHelper();
-    await helper.setSettings(txtName.text, _selectedImage);
+  Future<bool> saveSettings() async {
+    return await helper.setSettings(txtName.text, _selectedImage);
   }
 
-  Future getSettings() async {
-    final SpHelper helper = SpHelper();
+  Future<void> getSettings() async {
     Map<String, String> settings = await helper.getSettings();
     _selectedImage = settings['image'] ?? 'Lake';
     txtName.text = settings['name'] ?? '';
-    setState(() {
-      
-    });
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    txtName.dispose();
+    super.dispose();
   }
 }
