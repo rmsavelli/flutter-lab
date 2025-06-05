@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:mindful_app/data/quotes.dart';
+import 'package:mindful_app/screens/settings_screen.dart';
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
@@ -29,7 +30,23 @@ class _QuoteScreenState extends State<QuoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mindful Quote')),
+      appBar: AppBar(
+        title: const Text('Mindful Quote'),
+        actions: [
+          IconButton(
+            onPressed: _goToSettings,
+            icon: const Icon(Icons.settings)),
+          IconButton(
+            onPressed: () {
+              _fetchQuote().then((value) {
+                setState(() {
+                quote = value;
+              });
+            });
+            },
+            icon: const Icon(Icons.refresh)),
+        ],        
+        ),
       body: Center(child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -56,8 +73,20 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Future _fetchQuote() async {
     final Uri url = Uri.parse(address);
     final response = await http.get(url);
-    final List quoteJson = json.decode(response.body);
-    Quote quote = Quote.fromJSON(quoteJson[0]);
-    return quote;
+    if (response.statusCode == 200) {
+      final List quoteJson = json.decode(response.body);
+      Quote quote = Quote.fromJSON(quoteJson[0]);
+      return quote;
+    } else {
+      return Quote(text: 'Error retrieving quote', author: '');
+    }
+  }
+
+  void _goToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SettingsScreen(),)
+    );
   }
 }

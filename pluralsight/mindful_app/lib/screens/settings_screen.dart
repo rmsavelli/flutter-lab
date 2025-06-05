@@ -71,8 +71,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> getSettings() async {
     Map<String, String> settings = await helper.getSettings();
-    _selectedImage = settings['image'] ?? 'Lake';
+    _selectedImage = settings['image'] ?? '';
     txtName.text = settings['name'] ?? '';
+    if (_selectedImage == '') _selectedImage = 'Lake';
     setState(() {});
   }
 
