@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mindful_app/screens/intro_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MainApp());
 }
 

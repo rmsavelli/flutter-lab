@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mindful_app/data/db_helper.dart';
 import 'dart:convert';
 
 import 'package:mindful_app/data/quotes.dart';
@@ -73,6 +74,22 @@ class _QuoteScreenState extends State<QuoteScreen> {
           }
         }
       ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.save),
+        onPressed: (){
+          DbHelper helper = DbHelper();
+          helper.insertQuote(quote).then((id) {
+            final message = (id==0)
+              ? 'An error occurred. The quote could not be saved'
+              : 'The quote was saved successfully';
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(message),
+                duration: const Duration(seconds: 3),
+              )
+            );
+          });
+        }),
     );
   }
 
