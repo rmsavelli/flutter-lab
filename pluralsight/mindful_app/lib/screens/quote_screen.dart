@@ -19,12 +19,8 @@ class _QuoteScreenState extends State<QuoteScreen> {
   @override
   void initState() {
     super.initState();
-    // _fetchQuote().then((value) {
-    //   quote = value;
-    //   setState(() {
-    //   });
-    // });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +35,6 @@ class _QuoteScreenState extends State<QuoteScreen> {
             onPressed: () {
               _fetchQuote().then((value) {
                 setState(() {
-                  
                 });
               });
             },
