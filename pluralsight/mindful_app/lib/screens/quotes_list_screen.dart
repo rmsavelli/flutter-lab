@@ -12,21 +12,30 @@ class QuotesListScreen extends StatelessWidget {
       body: FutureBuilder(
         future: getQuotes(),
         builder: (context, snapshot) {
-          final List<ListTile> listTiles = [];
+          final List<Dismissible> listTiles = [];
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error ${snapshot.error}'),);
-          } else { 
+            return Center(child: Text('Error ${snapshot.error}'));
+          } else {
             for (Quote quote in snapshot.data!) {
-              listTiles.add(ListTile(
-                title: Text(quote.text),
-                subtitle: Text(quote.author),
-              ));
+              listTiles.add(
+                Dismissible(
+                  key: Key(quote.id.toString()),
+                  onDismissed: (_) {
+                    DbHelper helper = DbHelper();
+                    helper.deleteQuote(quote.id!);
+                  },
+                  child: ListTile(
+                    title: Text(quote.text),
+                    subtitle: Text(quote.author),
+                  ),
+                ),
+              );
             }
-            return ListView(children: listTiles,);
+            return ListView(children: listTiles);
           }
-        }
+        },
       ),
     );
   }
