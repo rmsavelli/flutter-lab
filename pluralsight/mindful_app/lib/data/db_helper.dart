@@ -1,6 +1,5 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
 import 'quotes.dart';
 
@@ -21,7 +20,7 @@ class DbHelper {
       Database db = await _openDb();
       int id = await store.add(db, quote.toMap());
       return id;
-    } on Exception catch (e) {
+    } on Exception catch (_) {
      return 0;
     }
   }
@@ -33,8 +32,8 @@ class DbHelper {
         SortOrder('q'),
       ]
     );
-    final quoteSnapshot = await store.find(db, finder: finder);
-    return quoteSnapshot.map((item) {
+    final quotesSnapshot = await store.find(db, finder: finder);
+    return quotesSnapshot.map((item) {
       final quote = Quote.fromJSON(item.value);
       quote.id = item.key;
       return quote;

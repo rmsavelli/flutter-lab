@@ -4,7 +4,9 @@ import 'package:mindful_app/data/db_helper.dart';
 import 'dart:convert';
 
 import 'package:mindful_app/data/quotes.dart';
+import 'package:mindful_app/screens/quotes_list_screen.dart';
 import 'package:mindful_app/screens/settings_screen.dart';
+
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
@@ -20,6 +22,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
   @override
   void initState() {
     super.initState();
+    
   }
 
 
@@ -32,6 +35,9 @@ class _QuoteScreenState extends State<QuoteScreen> {
           IconButton(
             onPressed: _goToSettings,
             icon: const Icon(Icons.settings)),
+          IconButton(
+            onPressed: _goToList,
+            icon: const Icon(Icons.list)),
           IconButton(
             onPressed: () {
               _fetchQuote().then((value) {
@@ -50,7 +56,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error; ${snapshot.error}'),);
           } else {
-            Quote quote = snapshot.data!;
+            quote = snapshot.data!;
             return Center(child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -110,6 +116,14 @@ class _QuoteScreenState extends State<QuoteScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => const SettingsScreen(),)
+    );
+  }
+  
+  void _goToList() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const QuotesListScreen(),)
     );
   }
 }
