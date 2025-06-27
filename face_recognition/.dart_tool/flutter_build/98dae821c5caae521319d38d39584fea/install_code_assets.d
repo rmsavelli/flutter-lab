@@ -1,0 +1,1 @@
+ /home/savelli/projects/flutter-lab/face_recognition/.dart_tool/flutter_build/98dae821c5caae521319d38d39584fea/native_assets.json: 

@@ -1,0 +1,1 @@
+ /home/savelli/projects/flutter-lab/pluralsight/mindful_app/.dart_tool/flutter_build/4c46c2e42a26f61efcf84c5b7018c8c4/native_assets.json: 

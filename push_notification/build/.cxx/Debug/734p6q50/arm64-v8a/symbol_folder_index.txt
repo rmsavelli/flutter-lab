@@ -1,0 +1,1 @@
+/home/savelli/projects/flutter-lab/push_notification/build/app/intermediates/cxx/Debug/734p6q50/obj/arm64-v8a

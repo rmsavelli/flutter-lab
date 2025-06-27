@@ -1,0 +1,1 @@
+ /home/savelli/projects/flutter-lab/openai_chat/.dart_tool/flutter_build/82d4f5f530bb54850f7783e491b920e6/native_assets.json: 

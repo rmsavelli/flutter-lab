@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/savelli/Downloads/flutter/packages/flutter_tools/gradle/src/main/scripts/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/savelli/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/savelli/projects/flutter-lab/flutter_timer/build/.cxx/Debug/h1u5i32z/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/savelli/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/savelli/projects/flutter-lab/flutter_timer/build/.cxx/Debug/h1u5i32z/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
