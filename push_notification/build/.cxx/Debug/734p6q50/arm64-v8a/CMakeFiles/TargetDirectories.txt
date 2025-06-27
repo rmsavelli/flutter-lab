@@ -1,2 +1,0 @@
-/home/savelli/projects/flutter-lab/push_notification/build/.cxx/Debug/734p6q50/arm64-v8a/CMakeFiles/edit_cache.dir
-/home/savelli/projects/flutter-lab/push_notification/build/.cxx/Debug/734p6q50/arm64-v8a/CMakeFiles/rebuild_cache.dir
