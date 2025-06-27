@@ -5,3 +5,14 @@ build/
 *.dll
 *.exe
 *.zip
+face_recognition/.dart_tool/
+flutter_time/.dart_tool/
+hello_world/.dart_tool/
+openai_chat/.dart_tool/
+pluralsight/mindful_app/.dart_tool/
+push_notification/.dart_tool/
+simple_camera/.dart_tool/
+simple_fingerprint/.dart_tool/
+simple_sendmail/.dart_tool/
+text_recognition/.dart_tool/
+

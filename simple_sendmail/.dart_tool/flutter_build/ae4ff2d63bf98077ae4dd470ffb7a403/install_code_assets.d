@@ -1,1 +1,0 @@
- /home/savelli/projects/flutter-lab/simple_sendmail/.dart_tool/flutter_build/ae4ff2d63bf98077ae4dd470ffb7a403/native_assets.json: 

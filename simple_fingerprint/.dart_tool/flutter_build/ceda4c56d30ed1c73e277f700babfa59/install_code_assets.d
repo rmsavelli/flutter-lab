@@ -1,1 +1,0 @@
- /home/savelli/projects/flutter-lab/simple_fingerprint/.dart_tool/flutter_build/ceda4c56d30ed1c73e277f700babfa59/native_assets.json: 
