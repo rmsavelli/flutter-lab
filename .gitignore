@@ -10,5 +10,5 @@ build/
 *.apk
 *.so
 *.dill
-.env
+*.env
 *.key
