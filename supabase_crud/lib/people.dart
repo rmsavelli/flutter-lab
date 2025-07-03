@@ -56,42 +56,54 @@ class _PeoplePageState extends State<PeoplePage> {
   void showEditDialog(Map<String, dynamic> person) {
     nameController.text = person['name'];
     ageController.text = person['age'].toString();
-    isActive = person['is_active'] ?? true;
+    bool localActive = person['is_active'] ?? true;
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Editar pessoa'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Nome')),
-            TextField(controller: ageController, decoration: const InputDecoration(labelText: 'Idade'), keyboardType: TextInputType.number),
-            SwitchListTile(
-              title: const Text("Ativo?"),
-              value: isActive,
-              onChanged: (val) => setState(() {
-                print("val=$val");
-                isActive = val;
-                }
-              ),
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Editar pessoa'),
+          content: StatefulBuilder(
+            builder: (context, setStateDialog) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Nome'),
+                ),
+                TextField(
+                  controller: ageController,
+                  decoration: const InputDecoration(labelText: 'Idade'),
+                  keyboardType: TextInputType.number,
+                ),
+                SwitchListTile(
+                  title: const Text("Ativo?"),
+                  value: localActive,
+                  onChanged: (val) {
+                    setStateDialog(() => localActive = val);
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                isActive = localActive;
+                updatePerson(person['id']);
+                Navigator.pop(context);
+              },
+              child: const Text('Salvar'),
             ),
           ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
-          ElevatedButton(
-            onPressed: () {
-              updatePerson(person['id']);
-              Navigator.pop(context);
-            },
-            child: const Text('Salvar'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
