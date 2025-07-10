@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'services/database_service.dart';
 
-final supabase = Supabase.instance.client;
+final db = DatabaseService();
 
 class PeoplePage extends StatefulWidget {
   const PeoplePage({super.key});
@@ -23,16 +23,16 @@ class _PeoplePageState extends State<PeoplePage> {
   }
 
   Future<void> fetchPeople() async {
-    final response = await supabase.from('people').select().order('id');
+    final response = await db.fetchPeople();
     setState(() => people = response);
   }
 
   Future<void> createPerson() async {
-    await supabase.from('people').insert({
-      'name': nameController.text,
-      'age': int.tryParse(ageController.text) ?? 0,
-      'is_active': isActive,
-    });
+    await db.createPerson(
+      name: nameController.text,
+      age: int.tryParse(ageController.text) ?? 0,
+      isActive: isActive,
+    );
     nameController.clear();
     ageController.clear();
     isActive = true;
@@ -40,16 +40,17 @@ class _PeoplePageState extends State<PeoplePage> {
   }
 
   Future<void> updatePerson(int id) async {
-    await supabase.from('people').update({
-      'name': nameController.text,
-      'age': int.tryParse(ageController.text) ?? 0,
-      'is_active': isActive,
-    }).eq('id', id);
+    await db.updatePerson(
+      id: id,
+      name: nameController.text,
+      age: int.tryParse(ageController.text) ?? 0,
+      isActive: isActive,
+    );
     fetchPeople();
   }
 
   Future<void> deletePerson(int id) async {
-    await supabase.from('people').delete().eq('id', id);
+    await db.deletePerson(id);
     fetchPeople();
   }
 
