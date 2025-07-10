@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'services/database_service.dart';
+import 'models/person.dart';
 
 final db = DatabaseService();
 
@@ -10,7 +11,7 @@ class PeoplePage extends StatefulWidget {
 }
 
 class _PeoplePageState extends State<PeoplePage> {
-  List<dynamic> people = [];
+  List<Person> people = [];
 
   final nameController = TextEditingController();
   final ageController = TextEditingController();
@@ -28,24 +29,27 @@ class _PeoplePageState extends State<PeoplePage> {
   }
 
   Future<void> createPerson() async {
-    await db.createPerson(
+    final newPerson = Person(
+      id: 0, // supabase will auto-generate
       name: nameController.text,
       age: int.tryParse(ageController.text) ?? 0,
       isActive: isActive,
+      createdAt: DateTime.now(),
     );
+    await db.createPerson(newPerson);
     nameController.clear();
     ageController.clear();
     isActive = true;
     fetchPeople();
   }
 
-  Future<void> updatePerson(int id) async {
-    await db.updatePerson(
-      id: id,
+  Future<void> updatePerson(Person p) async {
+    final updated = p.copyWith(
       name: nameController.text,
       age: int.tryParse(ageController.text) ?? 0,
       isActive: isActive,
     );
+    await db.updatePerson(updated);
     fetchPeople();
   }
 
@@ -54,10 +58,10 @@ class _PeoplePageState extends State<PeoplePage> {
     fetchPeople();
   }
 
-  void showEditDialog(Map<String, dynamic> person) {
-    nameController.text = person['name'];
-    ageController.text = person['age'].toString();
-    bool localActive = person['is_active'] ?? true;
+  void showEditDialog(Person person) {
+    nameController.text = person.name;
+    ageController.text = person.age.toString();
+    bool localActive = person.isActive;
 
     showDialog(
       context: context,
@@ -95,7 +99,7 @@ class _PeoplePageState extends State<PeoplePage> {
             ElevatedButton(
               onPressed: () {
                 isActive = localActive;
-                updatePerson(person['id']);
+                updatePerson(person);
                 Navigator.pop(context);
               },
               child: const Text('Salvar'),
@@ -125,13 +129,19 @@ class _PeoplePageState extends State<PeoplePage> {
                 itemBuilder: (_, i) {
                   final p = people[i];
                   return ListTile(
-                    title: Text('${p['name']} (Idade: ${p['age']})'),
-                    subtitle: Text('Ativo: ${p['is_active']} | Criado: ${p['created_at']}'),
+                    title: Text('${p.name} (Idade: ${p.age})'),
+                    subtitle: Text('Ativo: ${p.isActive} | Criado: ${p.createdAt}'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(onPressed: () => showEditDialog(p), icon: const Icon(Icons.edit, color: Colors.blue)),
-                        IconButton(onPressed: () => deletePerson(p['id']), icon: const Icon(Icons.delete, color: Colors.red)),
+                        IconButton(
+                          onPressed: () => showEditDialog(p),
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                        ),
+                        IconButton(
+                          onPressed: () => deletePerson(p.id),
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                        ),
                       ],
                     ),
                   );
