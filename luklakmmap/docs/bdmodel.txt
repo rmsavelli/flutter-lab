@@ -1,0 +1,213 @@
+dbdiagram.io: https://dbdiagram.io/
+doc: https://dbml.dbdiagram.io/docs
+
+// Enums
+Enum role {
+  TRAVELER
+  HR
+  ADMINISTRATOR
+}
+
+Enum report_status {
+  EMPTY
+  FILLING_IN
+  SIGNED
+  APPROVED
+}
+
+Enum report_action {
+  DRAFT
+  SIGN
+  APPROVE
+  REJECT
+}
+
+// Tables
+Table users {
+  id              serial      [primary key]
+  role            role        [not null]
+  name            varchar     [not null]
+  email           varchar     [not null, unique]
+  password        varchar     [not null]
+  nif             integer     [not null, unique]
+  home_address    varchar
+  license_plate   varchar     [not null, unique]
+  client_name     varchar
+  target_cost     numeric(10, 2)
+  target_distance integer
+  target_ratio    float
+}
+
+Table locations {
+  id        serial      [primary key]
+  user_id   integer     [not null, ref: > users.id]
+  name      varchar     [not null]
+  address   varchar
+  immutable boolean
+}
+
+Table trips {
+  id             serial         [primary key]
+  user_id        integer        [not null, ref: > users.id]
+  origin_id      integer        [not null, ref: > locations.id]
+  destination_id integer        [not null, ref: > locations.id]
+  begin_date     datetime       [not null]
+  justification  varchar        [not null]
+  distance       integer        [not null]
+  cost           numeric(10, 2) [not null]
+}
+
+Table reports {
+  id                 serial         [primary key]
+  user_id            integer        [not null, ref: > users.id]
+  accountable_period date
+  total_kms          integer
+  total_amount       numeric(10,2)
+  status             report_status
+}
+
+Table report_trips {
+  report_id  integer [not null, ref: > reports.id]
+  trip_id    integer [not null, ref: > trips.id]
+
+  primary key (report_id, trip_id)
+}
+
+Table report_audit_log {
+  id         serial          [primary key]
+  report_id  integer         [not null, ref: > reports.id]
+  user_id    integer         [ref: > users.id]
+  action     report_action   [not null]
+  timestamp  datetime        [not null, default: `now()`]
+  notes      text
+
+  Indexes {
+    (report_id)
+  }
+}
+
+Table holidays {
+  id   serial  [primary key]
+  name varchar
+  date date
+}
+
+
+
+
+
+
+
+// OLD
+
+Table users {
+  id            serial         [primary key]
+  role          enum [
+  note: '''
+  1 = TRAVELER,
+  2 = HR,
+  3 = ADMINISTRATOR,
+  ''', not null]
+  name            varchar        [not null]
+  login           varchar        [not null]
+  password        varchar        [not null]
+  email           varchar        [not null]
+  nif             integer
+  home_address    varchar
+  license_plate   varchar
+  client_name     varchar
+  target_cost     numeric(10, 2)
+  target_distance integer
+  target_ratio    float
+}
+
+Table locations {
+  id        serial  [primary key]
+  user_id   integer
+  name      varchar [not null]
+  address   varchar
+  immutable boolean
+}
+
+Table trips {
+  id             serial         [primary key]
+  user_id        integer        [not null]
+  origin_id      varchar        [not null]
+  destination_id varchar        [not null]
+  begin_date     datetime       [not null]
+  justification  varchar        [not null]
+  distance       integer        [not null]
+  cost           numeric(10, 2) [not null]
+}
+
+Table reports {
+  id                 serial   [primary key]
+  user_id            integer   [not null]
+  accountable_period date
+  total_kms          integer
+  total_amount       numeric(10,2)
+  creation           datetime
+  signed             datetime
+  sent               datetime
+  approved           datetime
+  status             enum [
+  note: '''
+  1 = EMPTY,
+  2 = FILLING_IN,
+  3 = SIGNED,
+  4 = APPROVED
+  ''']
+}
+
+Table holidays {
+  id   serial
+  name varchar
+  date date
+}
+
+Table report_trips {
+  report_id integer [not null, ref: > reports.id]
+  trip_id   integer [not null, ref: > trips.id]
+
+  primary key (report_id, trip_id)
+}
+
+// Relations
+Ref user_travel: users.id < trips.user_id
+Ref user_location: users.id < locations.user_id
+Ref user_report: users.id < reports.user_id
+Ref: locations.id < trips.origin_id
+Ref: locations.id < trips.destination_id
+
+
+
+
+------- DEFAULT -------
+
+Table follows {
+  following_user_id integer
+  followed_user_id integer
+  created_at timestamp
+}
+
+Table users {
+  id integer [primary key]
+  username varchar
+  role varchar
+  created_at timestamp
+}
+
+Table posts {
+  id integer [primary key]
+  title varchar
+  body text [note: 'Content of the post']
+  user_id integer [not null]
+  status varchar
+  created_at timestamp
+}
+
+Ref user_posts: posts.user_id > users.id // many-to-one
+
+Ref: users.id < follows.following_user_id
+
+Ref: users.id < follows.followed_user_id
