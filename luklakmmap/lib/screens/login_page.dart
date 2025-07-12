@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/database_service.dart';
 import 'main_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,48 +24,29 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _signIn() async {
+    final db = DatabaseService();
+
     try {
-      final authResponse = await supabase.auth.signInWithPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      final userId = await db.signIn(
+        email: _emailController.text,
+        password: _passwordController.text,
       );
 
-      final userId = authResponse.user?.id;
+      final userName = await db.fetchName(userId);
 
-      if (userId == null) {
-        _showError('Login failed. Please, check your credentials');
-        return;
-      }
-
-      // Get user name from supabase table public.users
-      final response = await supabase
-          .from('users')
-          .select('name')
-          .eq('id', userId)
-          .single();
-
-      final userName = response['name'];
-
-      // Navigates away to MainPage
-      if (mounted) {
+      if (context.mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MainPage(name: userName),
+            builder: (context) => MainPage(name: userName ?? 'User'),
           ),
         );
       }
-    } on AuthException catch (e) {
-      _showError(e.message);
     } catch (e) {
-      _showError('Unexpected error. Please try again.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed! Please check your credentials and try again.')),
+      );
     }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
   }
 
   @override
