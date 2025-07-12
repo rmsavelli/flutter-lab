@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/auth_service.dart';
 import '../services/database_service.dart';
 import 'main_page.dart';
 
@@ -24,10 +25,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _signIn() async {
+    final auth = AuthService();
     final db = DatabaseService();
 
     try {
-      final userId = await db.signIn(
+      final userId = await auth.signIn(
         email: _emailController.text,
         password: _passwordController.text,
       );
