@@ -23,8 +23,21 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool _obscurePassword = true;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscurePassword = !_obscurePassword;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +72,7 @@ class LoginPage extends StatelessWidget {
                         'assets/logo-lukla.png',
                         height: 53,
                         width: 281,
+                        fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 32),
                       const Text(
@@ -82,12 +96,17 @@ class LoginPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       TextField(
-                        obscureText: true,
+                        obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          suffixIcon: Icon(Icons.visibility_off_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            ),
+                            onPressed: _togglePasswordVisibility,
                           ),
                         ),
                       ),
@@ -96,7 +115,9 @@ class LoginPage extends StatelessWidget {
                         width: double.infinity,
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            // Ação futura
+                          },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
