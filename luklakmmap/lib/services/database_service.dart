@@ -1,20 +1,17 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/user.dart' as app_model;
 
 class DatabaseService {
   final SupabaseClient _client = Supabase.instance.client;
 
-  // Fetch name, target_cost, and target_distance from users table
-  Future<Map<String, dynamic>?> fetchUserData(String userId) async {
-    final userResponse = await _client
+  // Fetches a full User object by ID
+  Future<app_model.User?> fetchUser(String userId) async {
+    final response = await _client
         .from('users')
-        .select('name, target_cost, target_distance')
+        .select('id, name, target_cost, target_distance')
         .eq('id', userId)
         .single();
 
-    return {
-      'name': userResponse['name'] as String,
-      'target_cost': (userResponse['target_cost'] as num?)?.toDouble() ?? 0.0,
-      'target_distance': userResponse['target_distance'] as int? ?? 0,
-    };
+    return app_model.User.fromMap(response);
   }
 }

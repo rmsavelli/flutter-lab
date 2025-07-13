@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/database_service.dart';
+import '../models/user.dart' as app_model;
 
 class MainPage extends StatefulWidget {
   final String userId;
@@ -13,9 +14,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final DatabaseService _databaseService = DatabaseService();
 
-  String userName = '';
-  double targetCost = 0;
-  int targetDistance = 0;
+  app_model.User? user;
   bool isLoading = true;
 
   @override
@@ -25,13 +24,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _loadUserData() async {
-    final userData = await _databaseService.fetchUserData(widget.userId);
+    final fetchedUser = await _databaseService.fetchUser(widget.userId);
 
-    if (userData != null) {
+    if (fetchedUser != null) {
       setState(() {
-        userName = userData['name'];
-        targetCost = userData['target_cost'];
-        targetDistance = userData['target_distance'];
+        user = fetchedUser;
         isLoading = false;
       });
     }
@@ -41,7 +38,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isLoading ? 'Loading...' : 'Welcome, $userName'),
+        title: Text(isLoading ? 'Loading...' : 'Welcome, ${user?.name ?? ''}'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         actions: const [
@@ -58,7 +55,6 @@ class _MainPageState extends State<MainPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Date and total stats
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -70,7 +66,7 @@ class _MainPageState extends State<MainPage> {
                         ],
                       ),
                       Text(
-                        '${targetCost.toStringAsFixed(0)}€ ($targetDistance Km)',
+                        '${user!.targetCost.toStringAsFixed(0)}€ (${user!.targetDistance} Km)',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -84,7 +80,6 @@ class _MainPageState extends State<MainPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
-                  // Table and pagination removed
                 ],
               ),
             ),
