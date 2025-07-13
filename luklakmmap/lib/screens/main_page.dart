@@ -17,6 +17,9 @@ class _MainPageState extends State<MainPage> {
   app_model.User? user;
   bool isLoading = true;
 
+  double totalCost = 0.0;
+  int totalDistance = 0;
+
   @override
   void initState() {
     super.initState();
@@ -25,10 +28,13 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _loadUserData() async {
     final fetchedUser = await _databaseService.fetchUser(widget.userId);
+    final stats = await _databaseService.fetchUserTripStats(widget.userId);
 
     if (fetchedUser != null) {
       setState(() {
         user = fetchedUser;
+        totalCost = stats['totalCost'];
+        totalDistance = stats['totalDistance'];
         isLoading = false;
       });
     }
@@ -36,6 +42,9 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final remainingCost = user != null ? (user!.targetCost - totalCost) : 0.0;
+    final remainingDistance = user != null ? (user!.targetDistance - totalDistance) : 0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(isLoading ? 'Loading...' : 'Welcome, ${user?.name ?? ''}'),
@@ -55,6 +64,7 @@ class _MainPageState extends State<MainPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Date and total stats
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -65,12 +75,17 @@ class _MainPageState extends State<MainPage> {
                           Text('July', style: TextStyle(fontSize: 16)),
                         ],
                       ),
-                      Text(
-                        '${user!.targetCost.toStringAsFixed(0)}€ (${user!.targetDistance} Km)',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${remainingCost.toStringAsFixed(0)}€ ($remainingDistance Km)',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -80,6 +95,7 @@ class _MainPageState extends State<MainPage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
+                  // Trip list can go here
                 ],
               ),
             ),
