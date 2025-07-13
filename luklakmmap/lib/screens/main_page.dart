@@ -71,11 +71,12 @@ class _MainPageState extends State<MainPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.calendar_month),
-                          SizedBox(width: 8),
+                          const Icon(Icons.calendar_month),
+                          const SizedBox(width: 8),
                           Text(
                             DateFormat.MMMM().format(DateTime.now()),
-                            style: TextStyle(fontSize: 16)),
+                            style: const TextStyle(fontSize: 16),
+                          ),
                         ],
                       ),
                       Column(
@@ -96,6 +97,93 @@ class _MainPageState extends State<MainPage> {
                   const Text(
                     'Trips',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  // 👇 Add the static DataTable here
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
+                      columnSpacing: 16,
+                      dataRowMinHeight: 48,
+                      columns: const [
+                        DataColumn(
+                          label: Text(
+                            'Day',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Distance',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Justification',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Origin',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            'Destination',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                      rows: const [
+                        DataRow(cells: [
+                          DataCell(Text('07')),
+                          DataCell(Text('127km (68.98€)')),
+                          DataCell(Text('Team building Porto')),
+                          DataCell(Text('Street 1 door 3')),
+                          DataCell(Text('Street 2 door 7')),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('08')),
+                          DataCell(Text('93km (50.22€)')),
+                          DataCell(Text('Client meeting')),
+                          DataCell(Text('Street 4 door 1')),
+                          DataCell(Text('Street 5 door 9')),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('09')),
+                          DataCell(Text('110km (57.40€)')),
+                          DataCell(Text('Conference')),
+                          DataCell(Text('Main Ave 10')),
+                          DataCell(Text('Expo Center Gate B')),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('10')),
+                          DataCell(Text('75km (39.05€)')),
+                          DataCell(Text('Training session')),
+                          DataCell(Text('Office HQ')),
+                          DataCell(Text('Branch Office')),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('11')),
+                          DataCell(Text('60km (31.20€)')),
+                          DataCell(Text('Equipment pickup')),
+                          DataCell(Text('Depot A')),
+                          DataCell(Text('Warehouse Z')),
+                        ]),
+                        DataRow(cells: [
+                          DataCell(Text('12')),
+                          DataCell(Text('82km (42.64€)')),
+                          DataCell(Text('Site inspection')),
+                          DataCell(Text('Street 6 door 4')),
+                          DataCell(Text('Street 9 door 2')),
+                        ]),
+                      ],
+                      // Optional: add a border using decoration or a wrapping Container
+                      // Not directly supported in DataTable, but possible via decoration wrappers
+                    ),
                   ),
                   const SizedBox(height: 12),
                   // Trip list can go here
