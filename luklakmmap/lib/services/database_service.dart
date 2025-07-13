@@ -23,11 +23,11 @@ class DatabaseService {
         .eq('user_id', userId);
 
     double totalCost = 0.0;
-    int totalDistance = 0;
+    double totalDistance = 0.0;
 
     for (final trip in response) {
       totalCost += (trip['cost'] as num).toDouble();
-      totalDistance += (trip['distance'] as int);
+      totalDistance += (trip['distance'] as num).toDouble();
     }
 
     return {

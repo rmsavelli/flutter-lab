@@ -18,7 +18,7 @@ class _MainPageState extends State<MainPage> {
   bool isLoading = true;
 
   double totalCost = 0.0;
-  int totalDistance = 0;
+  double totalDistance = 0.0;
 
   @override
   void initState() {
@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            '${remainingCost.toStringAsFixed(0)}€ ($remainingDistance Km)',
+                            '${remainingCost.toStringAsFixed(2)}€ (${remainingDistance.toStringAsFixed(1)}Km)',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
