@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../services/database_service.dart';
 import '../models/user.dart' as app_model;
 
@@ -30,7 +31,7 @@ class _MainPageState extends State<MainPage> {
     final fetchedUser = await _databaseService.fetchUser(widget.userId);
     final stats = await _databaseService.fetchUserTripStats(widget.userId);
 
-    if (fetchedUser != null) {
+    if (fetchedUser != null && mounted) {
       setState(() {
         user = fetchedUser;
         totalCost = stats['totalCost'];
@@ -69,10 +70,12 @@ class _MainPageState extends State<MainPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
-                        children: const [
+                        children: [
                           Icon(Icons.calendar_month),
                           SizedBox(width: 8),
-                          Text('July', style: TextStyle(fontSize: 16)),
+                          Text(
+                            DateFormat.MMMM().format(DateTime.now()),
+                            style: TextStyle(fontSize: 16)),
                         ],
                       ),
                       Column(
