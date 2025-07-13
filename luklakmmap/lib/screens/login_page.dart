@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
-import '../services/database_service.dart';
 import 'main_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _signIn() async {
     final auth = AuthService();
-    final db = DatabaseService();
 
     try {
       final userId = await auth.signIn(
@@ -34,19 +32,19 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text,
       );
 
-      final userName = await db.fetchName(userId);
-
       if (context.mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MainPage(name: userName ?? 'User'),
+            builder: (context) => MainPage(userId: userId),
           ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed! Please check your credentials and try again.')),
+        const SnackBar(
+          content: Text('Login failed! Please check your credentials and try again.'),
+        ),
       );
     }
   }
