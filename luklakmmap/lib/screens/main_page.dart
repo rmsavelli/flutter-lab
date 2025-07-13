@@ -43,7 +43,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     final remainingCost = user != null ? (user!.targetCost - totalCost) : 0.0;
-    final remainingDistance = user != null ? (user!.targetDistance - totalDistance) : 0;
+    final remainingDistance = user != null ? (user!.targetDistance - totalDistance) : 0.0;
 
     return Scaffold(
       appBar: AppBar(
