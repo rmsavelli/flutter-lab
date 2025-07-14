@@ -33,8 +33,8 @@ Table users {
   home_address    varchar
   license_plate   varchar     [not null, unique]
   client_name     varchar
-  target_cost     numeric(10, 2)
-  target_distance integer
+  target_cost     float
+  target_distance float
   target_ratio    float
 }
 
