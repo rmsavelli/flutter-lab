@@ -24,18 +24,19 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadHeaderData();
   }
 
-  Future<void> _loadUserData() async {
+  Future<void> _loadHeaderData() async {
     final fetchedUser = await _databaseService.fetchUser(widget.userId);
-    final stats = await _databaseService.fetchUserTripStats(widget.userId);
+    final fetchedTotalDistance = await _databaseService.fetchTripTotalDistance(widget.userId);
+    final fetchedTotalCost = await _databaseService.fetchTripTotalCost(widget.userId);
 
     if (fetchedUser != null && mounted) {
       setState(() {
         user = fetchedUser;
-        totalCost = stats['totalCost'];
-        totalDistance = stats['totalDistance'];
+        totalCost = fetchedTotalCost;
+        totalDistance = fetchedTotalDistance;
         isLoading = false;
       });
     }

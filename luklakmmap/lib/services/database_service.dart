@@ -15,24 +15,33 @@ class DatabaseService {
     return app_model.User.fromMap(response);
   }
 
-  // Aggregates total cost and distance from trips for the user
-  Future<Map<String, dynamic>> fetchUserTripStats(String userId) async {
+  // Fetches total distance from trips for the user
+  Future<double> fetchTripTotalDistance(String userId) async {
     final response = await _client
-        .from('trips')
-        .select('cost, distance')
-        .eq('user_id', userId);
+      .from('trips')
+      .select('distance')
+      .eq('user_id', userId);
 
-    double totalCost = 0.0;
-    double totalDistance = 0.0;
+      double totalDistance = 0.0;
+      for (final trip in response) {
+        totalDistance += (trip['distance'] as num).toDouble();
+      }
 
-    for (final trip in response) {
-      totalCost += (trip['cost'] as num).toDouble();
-      totalDistance += (trip['distance'] as num).toDouble();
-    }
+      return totalDistance;
+  }
 
-    return {
-      'totalCost': totalCost,
-      'totalDistance': totalDistance,
-    };
+  // Fetches total cost from trips for the user
+  Future<double> fetchTripTotalCost(String userId) async {
+    final response = await _client
+      .from('trips')
+      .select('cost')
+      .eq('user_id', userId);
+
+      double totalCost = 0.0;
+      for (final trip in response) {
+        totalCost += (trip['cost'] as num).toDouble();
+      }
+
+      return totalCost;
   }
 }
