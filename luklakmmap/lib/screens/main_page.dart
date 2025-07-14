@@ -1,7 +1,9 @@
+import 'login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../services/database_service.dart';
 import '../models/user.dart' as app_model;
+import '../services/auth_service.dart';
+import '../services/database_service.dart';
 
 class MainPage extends StatefulWidget {
   final String userId;
@@ -13,6 +15,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final AuthService _authService = AuthService();
   final DatabaseService _databaseService = DatabaseService();
 
   app_model.User? user;
@@ -42,6 +45,16 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  Future<void> _logout() async {
+    await _authService.signOut();
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final remainingCost = user != null ? (user!.targetCost - totalCost) : 0.0;
@@ -52,12 +65,58 @@ class _MainPageState extends State<MainPage> {
         title: Text(isLoading ? 'Loading...' : 'Welcome, ${user?.name ?? ''}'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Icon(Icons.menu),
+      ),
+      drawer: Drawer(
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                color: const Color(0xFF2BAE9C),
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 40, 16, 16), // Top = 40 for safe area
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'assets/logo-lukla.png',
+                      height: 40,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'KmMap',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.location_on),
+                      title: const Text('Your Locations'),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: _logout,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -99,7 +158,8 @@ class _MainPageState extends State<MainPage> {
                     'Trips',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                  // 👇 Add the static DataTable here
+                  const SizedBox(height: 12),
+                  // DataTable
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
@@ -182,8 +242,6 @@ class _MainPageState extends State<MainPage> {
                           DataCell(Text('Street 9 door 2')),
                         ]),
                       ],
-                      // Optional: add a border using decoration or a wrapping Container
-                      // Not directly supported in DataTable, but possible via decoration wrappers
                     ),
                   ),
                   const SizedBox(height: 12),

@@ -20,4 +20,9 @@ class AuthService {
 
     return userId;
   }
+
+  /// Signs out the current user.
+  Future<void> signOut() async {
+    await _client.auth.signOut();
+  }
 }
