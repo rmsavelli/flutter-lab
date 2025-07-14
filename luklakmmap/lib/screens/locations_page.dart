@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/location.dart';
 import '../services/database_service.dart';
+import '../widgets/location_form_dialog.dart';
+
 
 class LocationsPage extends StatefulWidget {
   final String userId;
@@ -30,6 +32,29 @@ class _LocationsPageState extends State<LocationsPage> {
     });
   }
 
+  Future<void> _addLocation(String name, String address) async {
+    await _databaseService.insertLocation(
+      name: name,
+      address: address,
+      userId: widget.userId,
+    );
+    _loadLocations(); // Refresh list
+  }
+
+  void _openAddLocationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return LocationFormDialog(
+          onSubmit: (name, address) {
+            Navigator.of(context).pop(); // Close dialog
+            _addLocation(name, address);
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +80,7 @@ class _LocationsPageState extends State<LocationsPage> {
                   final location = entry.value;
                   return DataRow(
                     cells: [
-                      DataCell(Text('${index + 1}')), // Index-based count
+                      DataCell(Text('${index + 1}')),
                       DataCell(Text(location.name)),
                       DataCell(Text(location.address)),
                     ],
@@ -64,9 +89,7 @@ class _LocationsPageState extends State<LocationsPage> {
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Add location logic
-        },
+        onPressed: _openAddLocationDialog,
         backgroundColor: Colors.teal,
         child: const Icon(Icons.add),
       ),

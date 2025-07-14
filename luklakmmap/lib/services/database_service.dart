@@ -5,6 +5,8 @@ import '../models/user.dart' as app_model;
 class DatabaseService {
   final SupabaseClient _client = Supabase.instance.client;
 
+  // FETCHES
+
   // Fetches a full User object by ID
   Future<app_model.User?> fetchUser(String userId) async {
     final response = await _client
@@ -54,5 +56,21 @@ class DatabaseService {
         .eq('user_id', userId);
 
     return response.map<Location>((item) => Location.fromMap(item)).toList();
+  }
+
+// INSERTS
+
+  // Insert a new location in the database
+  Future<void> insertLocation({
+    required String name,
+    required String address,
+    required String userId,
+  }) async {
+    await _client.from('locations').insert({
+      'name': name,
+      'address': address,
+      'user_id': userId,
+      // 'created_at': DateTime.now().toIso8601String(), // optional if Supabase handles it
+    });
   }
 }
