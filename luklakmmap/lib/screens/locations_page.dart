@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/location.dart';
 import '../services/database_service.dart';
 
 class LocationsPage extends StatefulWidget {
@@ -12,7 +13,7 @@ class LocationsPage extends StatefulWidget {
 
 class _LocationsPageState extends State<LocationsPage> {
   final DatabaseService _databaseService = DatabaseService();
-  List<Map<String, dynamic>> _locations = [];
+  List<Location> _locations = [];
   bool _isLoading = true;
 
   @override
@@ -54,9 +55,9 @@ class _LocationsPageState extends State<LocationsPage> {
                   final location = entry.value;
                   return DataRow(
                     cells: [
-                      DataCell(Text('${index + 1}')), // Renders 1, 2, 3, ...
-                      DataCell(Text(location['name'] ?? '')),
-                      DataCell(Text(location['address'] ?? '')),
+                      DataCell(Text('${index + 1}')), // Index-based count
+                      DataCell(Text(location.name)),
+                      DataCell(Text(location.address)),
                     ],
                   );
                 }).toList(),

@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../models/location.dart';
 import '../models/user.dart' as app_model;
 
 class DatabaseService {
@@ -15,7 +16,7 @@ class DatabaseService {
     return app_model.User.fromMap(response);
   }
 
-  // Fetches total distance from trips for the user
+  // Fetches total distance from trips for a given user
   Future<double> fetchTripTotalDistance(String userId) async {
     final response = await _client
       .from('trips')
@@ -30,7 +31,7 @@ class DatabaseService {
       return totalDistance;
   }
 
-  // Fetches total cost from trips for the user
+  // Fetches total cost from trips for a given user
   Future<double> fetchTripTotalCost(String userId) async {
     final response = await _client
       .from('trips')
@@ -46,12 +47,12 @@ class DatabaseService {
   }
 
   // Fetches all locations for a given user
-  Future<List<Map<String, dynamic>>> fetchLocations(String userId) async {
+  Future<List<Location>> fetchLocations(String userId) async {
     final response = await _client
         .from('locations')
         .select('id, name, address')
         .eq('user_id', userId);
 
-    return response.cast<Map<String, dynamic>>();
+    return response.map<Location>((item) => Location.fromMap(item)).toList();
   }
 }
