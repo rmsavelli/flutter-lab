@@ -44,4 +44,14 @@ class DatabaseService {
 
       return totalCost;
   }
+
+  // Fetches all locations for a given user
+  Future<List<Map<String, dynamic>>> fetchLocations(String userId) async {
+    final response = await _client
+        .from('locations')
+        .select('id, name, address')
+        .eq('user_id', userId);
+
+    return response.cast<Map<String, dynamic>>();
+  }
 }

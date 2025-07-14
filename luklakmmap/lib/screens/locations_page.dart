@@ -1,46 +1,67 @@
 import 'package:flutter/material.dart';
+import '../services/database_service.dart';
 
-class LocationsPage extends StatelessWidget {
-  const LocationsPage({super.key});
+class LocationsPage extends StatefulWidget {
+  final String userId;
+
+  const LocationsPage({super.key, required this.userId});
+
+  @override
+  State<LocationsPage> createState() => _LocationsPageState();
+}
+
+class _LocationsPageState extends State<LocationsPage> {
+  final DatabaseService _databaseService = DatabaseService();
+  List<Map<String, dynamic>> _locations = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocations();
+  }
+
+  Future<void> _loadLocations() async {
+    final locations = await _databaseService.fetchLocations(widget.userId);
+    setState(() {
+      _locations = locations;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final locations = [
-      {'#': '1', 'name': 'Headquarters', 'address': '123 Main Street'},
-      {'#': '2', 'name': 'Warehouse A', 'address': '45 Industrial Ave'},
-      {'#': '3', 'name': 'Branch Office', 'address': '78 Business Rd'},
-      {'#': '4', 'name': 'Client Site', 'address': '101 Elm Street'},
-      {'#': '5', 'name': 'Depot', 'address': '22 Logistics Blvd'},
-      {'#': '6', 'name': 'Remote Hub', 'address': '5 Remote Path'},
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Locations'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
-          columns: const [
-            DataColumn(label: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Address', style: TextStyle(fontWeight: FontWeight.bold))),
-          ],
-          rows: locations.map((location) {
-            return DataRow(
-              cells: [
-                DataCell(Text(location['#']!)),
-                DataCell(Text(location['name']!)),
-                DataCell(Text(location['address']!)),
-              ],
-            );
-          }).toList(),
-        ),
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
+                columns: const [
+                  DataColumn(label: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text('Address', style: TextStyle(fontWeight: FontWeight.bold))),
+                ],
+                rows: _locations.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final location = entry.value;
+                  return DataRow(
+                    cells: [
+                      DataCell(Text('${index + 1}')), // Renders 1, 2, 3, ...
+                      DataCell(Text(location['name'] ?? '')),
+                      DataCell(Text(location['address'] ?? '')),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO: Add location logic

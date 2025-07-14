@@ -106,7 +106,7 @@ class _MainPageState extends State<MainPage> {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const LocationsPage()),
+                          MaterialPageRoute(builder: (context) => LocationsPage(userId: widget.userId)),
                           );
                       },
                     ),
