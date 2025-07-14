@@ -79,7 +79,7 @@ Table report_audit_log {
   user_id    integer         [ref: > users.id]
   action     report_action   [not null]
   timestamp  datetime        [not null, default: `now()`]
-  notes      text
+  comment    text
 
   Indexes {
     (report_id)
