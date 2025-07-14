@@ -1,4 +1,5 @@
 import 'login_page.dart';
+import 'locations_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/user.dart' as app_model;
@@ -103,6 +104,10 @@ class _MainPageState extends State<MainPage> {
                       title: const Text('Your Locations'),
                       onTap: () {
                         Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LocationsPage()),
+                          );
                       },
                     ),
                   ],
