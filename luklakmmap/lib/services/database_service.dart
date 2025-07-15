@@ -56,31 +56,32 @@ class DatabaseService {
 
   // INSERTS
 
-  Future<void> insertLocation({
-    required String name,
-    required String address,
-    required String userId,
-  }) async {
+  Future<void> insertLocation(Location location, String userId) async {
     await _client.from('locations').insert({
-      'name': name,
-      'address': address,
+      'name': location.name,
+      'address': location.address,
       'user_id': userId,
     });
   }
 
   // UPDATE
 
-  Future<void> updateLocation({
-    required int id,
-    required String name,
-    required String address,
-  }) async {
+  Future<void> updateLocation(Location location) async {
     await _client
-        .from('locations')
-        .update({
-          'name': name,
-          'address': address,
-        })
-        .eq('id', id);
+      .from('locations')
+      .update({
+        'name': location.name,
+        'address': location.address,
+      })
+      .eq('id', location.id);
+  }
+
+  // DELETE
+
+  Future<void> deleteLocation(int id) async {
+    await _client
+      .from('locations')
+      .delete()
+      .eq('id', id);
   }
 }

@@ -68,11 +68,8 @@ class _LocationsPageState extends State<LocationsPage> {
   }
 
   Future<void> _addLocation(String name, String address) async {
-    await _databaseService.insertLocation(
-      name: name,
-      address: address,
-      userId: widget.userId,
-    );
+    final newLocation = Location(id: 0, name: name, address: address);
+    await _databaseService.insertLocation(newLocation, widget.userId);
     await _loadLocations();
     _filterLocations(_searchQuery);
   }
@@ -86,11 +83,7 @@ class _LocationsPageState extends State<LocationsPage> {
           initialAddress: location.address,
           onSubmit: (newName, newAddress) async {
             Navigator.of(context).pop();
-            await _databaseService.updateLocation(
-              id: location.id,
-              name: newName,
-              address: newAddress,
-            );
+            await _databaseService.updateLocation(location);
             await _loadLocations();
             _filterLocations(_searchQuery);
           },
