@@ -48,7 +48,7 @@ class DatabaseService {
   Future<List<Location>> fetchLocations(String userId) async {
     final response = await _client
         .from('locations')
-        .select('id, name, address')
+        .select('id, name, address, immutable')
         .eq('user_id', userId);
 
     return response.map<Location>((item) => Location.fromMap(item)).toList();
@@ -61,6 +61,7 @@ class DatabaseService {
       'name': location.name,
       'address': location.address,
       'user_id': userId,
+      'immutable': location.immutable
     });
   }
 
@@ -72,6 +73,7 @@ class DatabaseService {
       .update({
         'name': location.name,
         'address': location.address,
+        'immutable': location.immutable
       })
       .eq('id', location.id);
   }

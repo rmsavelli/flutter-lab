@@ -68,7 +68,7 @@ class _LocationsPageState extends State<LocationsPage> {
   }
 
   Future<void> _addLocation(String name, String address) async {
-    final newLocation = Location(id: 0, name: name, address: address);
+    final newLocation = Location(id: 0, name: name, address: address, immutable: true);
     await _databaseService.insertLocation(newLocation, widget.userId);
     await _loadLocations();
     _filterLocations(_searchQuery);
@@ -87,6 +87,7 @@ class _LocationsPageState extends State<LocationsPage> {
             id: location.id,
             name: newName,
             address: newAddress,
+            immutable: location.immutable
           );
           await _databaseService.updateLocation(updatedLocation);
           await _loadLocations();
