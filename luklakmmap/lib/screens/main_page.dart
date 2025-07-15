@@ -72,50 +72,67 @@ class _MainPageState extends State<MainPage> {
             color: const Color(0xFF2BAE9C),
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/logo-lukla.png',
-                  height: 40,
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'KmMap',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.asset(
+                    'assets/logo-lukla.png',
+                    height: 40,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  const Text(
+                    'KmMap',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ListTile(
-                  leading: const Icon(Icons.location_on),
-                  title: const Text('Your Locations'),
-                  onTap: () {
-                    if (!isWideScreen) Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LocationsPage(userId: widget.userId),
+                // Top Menu Items
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.location_on),
+                        title: const Text('Your Locations'),
+                        onTap: () {
+                          if (!isWideScreen) Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LocationsPage(userId: widget.userId),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
+                    ],
+                  ),
+                ),
+                // Bottom Logout Button
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('Logout'),
+                      onTap: _logout,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: _logout,
           ),
         ],
       ),
