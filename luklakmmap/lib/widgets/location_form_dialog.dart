@@ -4,12 +4,14 @@ class LocationFormDialog extends StatefulWidget {
   final String? initialName;
   final String? initialAddress;
   final void Function(String name, String address) onSubmit;
+  final VoidCallback? onDelete;
 
   const LocationFormDialog({
     super.key,
     this.initialName,
     this.initialAddress,
     required this.onSubmit,
+    this.onDelete,
   });
 
   @override
@@ -71,14 +73,23 @@ class _LocationFormDialogState extends State<LocationFormDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
         ElevatedButton(
           onPressed: _submit,
           child: const Text('Save'),
         ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        if (widget.onDelete != null)
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              widget.onDelete!();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
       ],
     );
   }
