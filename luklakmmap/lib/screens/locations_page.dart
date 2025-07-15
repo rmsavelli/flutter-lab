@@ -16,8 +16,10 @@ class _LocationsPageState extends State<LocationsPage> {
   final DatabaseService _databaseService = DatabaseService();
   List<Location> _locations = [];
   late LocationDataSource _dataSource;
-  int _rowsPerPage = 5; // default value
+  int _rowsPerPage = 5;
   bool _isLoading = true;
+  int? _sortColumnIndex;
+  bool _sortAscending = true;
 
   @override
   void initState() {
@@ -94,10 +96,39 @@ class _LocationsPageState extends State<LocationsPage> {
                         });
                       }
                     },
-                    columns: const [
-                      DataColumn(label: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('Address', style: TextStyle(fontWeight: FontWeight.bold))),
+                    sortColumnIndex: _sortColumnIndex,
+                    sortAscending: _sortAscending,
+                    columns: [
+                      DataColumn(
+                        label: const Text('#', style: TextStyle(fontWeight: FontWeight.bold)),
+                        onSort: (columnIndex, ascending) {
+                          setState(() {
+                            _sortColumnIndex = columnIndex;
+                            _sortAscending = ascending;
+                            _dataSource.sortByIndex(ascending);
+                          });
+                        },
+                      ),
+                      DataColumn(
+                        label: const Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                        onSort: (columnIndex, ascending) {
+                          setState(() {
+                            _sortColumnIndex = columnIndex;
+                            _sortAscending = ascending;
+                            _dataSource.sort((l) => l.name.toLowerCase(), ascending);
+                          });
+                        },
+                      ),
+                      DataColumn(
+                        label: const Text('Address', style: TextStyle(fontWeight: FontWeight.bold)),
+                        onSort: (columnIndex, ascending) {
+                          setState(() {
+                            _sortColumnIndex = columnIndex;
+                            _sortAscending = ascending;
+                            _dataSource.sort((l) => l.address.toLowerCase(), ascending);
+                          });
+                        },
+                      ),
                     ],
                     source: _dataSource,
                   ),
@@ -111,19 +142,35 @@ class _LocationsPageState extends State<LocationsPage> {
   }
 }
 
-// Reusable DataTable source
 class LocationDataSource extends DataTableSource {
-  final List<Location> locations;
+  List<Location> _locations;
+  final List<Location> _original;
 
-  LocationDataSource(this.locations);
+  LocationDataSource(List<Location> locations)
+      : _locations = [...locations],
+        _original = [...locations];
+
+  void sort<T>(Comparable<T> Function(Location l) getField, bool ascending) {
+    _locations.sort((a, b) {
+      final aVal = getField(a);
+      final bVal = getField(b);
+      return ascending ? Comparable.compare(aVal, bVal) : Comparable.compare(bVal, aVal);
+    });
+    notifyListeners();
+  }
+
+  void sortByIndex(bool ascending) {
+    _locations = ascending ? [..._original] : [..._original.reversed];
+    notifyListeners();
+  }
 
   @override
   DataRow? getRow(int index) {
-    if (index >= locations.length) return null;
-    final location = locations[index];
+    if (index >= _locations.length) return null;
+    final location = _locations[index];
     return DataRow(
       cells: [
-        DataCell(Text('${index + 1}')),
+        DataCell(Text('${_original.indexOf(_locations[index]) + 1}')),
         DataCell(Text(location.name)),
         DataCell(Text(location.address)),
       ],
@@ -134,7 +181,7 @@ class LocationDataSource extends DataTableSource {
   bool get isRowCountApproximate => false;
 
   @override
-  int get rowCount => locations.length;
+  int get rowCount => _locations.length;
 
   @override
   int get selectedRowCount => 0;
