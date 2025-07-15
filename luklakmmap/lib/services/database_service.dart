@@ -70,7 +70,6 @@ class DatabaseService {
       'name': name,
       'address': address,
       'user_id': userId,
-      // 'created_at': DateTime.now().toIso8601String(), // optional if Supabase handles it
     });
   }
 }

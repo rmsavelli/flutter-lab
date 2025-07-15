@@ -3,7 +3,6 @@ import '../models/location.dart';
 import '../services/database_service.dart';
 import '../widgets/location_form_dialog.dart';
 
-
 class LocationsPage extends StatefulWidget {
   final String userId;
 
@@ -16,6 +15,8 @@ class LocationsPage extends StatefulWidget {
 class _LocationsPageState extends State<LocationsPage> {
   final DatabaseService _databaseService = DatabaseService();
   List<Location> _locations = [];
+  late LocationDataSource _dataSource;
+  int _rowsPerPage = 5; // default value
   bool _isLoading = true;
 
   @override
@@ -25,11 +26,24 @@ class _LocationsPageState extends State<LocationsPage> {
   }
 
   Future<void> _loadLocations() async {
-    final locations = await _databaseService.fetchLocations(widget.userId);
-    setState(() {
-      _locations = locations;
-      _isLoading = false;
-    });
+    debugPrint('Start loading locations...');
+    try {
+      final locations = await _databaseService.fetchLocations(widget.userId);
+      debugPrint('Locations loaded: ${locations.length}');
+      setState(() {
+        _locations = locations;
+        _dataSource = LocationDataSource(locations);
+        _isLoading = false;
+      });
+    } catch (e, stack) {
+      debugPrint('Error loading locations: $e');
+      debugPrintStack(stackTrace: stack);
+      setState(() {
+        _locations = [];
+        _dataSource = LocationDataSource([]);
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _addLocation(String name, String address) async {
@@ -38,7 +52,7 @@ class _LocationsPageState extends State<LocationsPage> {
       address: address,
       userId: widget.userId,
     );
-    _loadLocations(); // Refresh list
+    await _loadLocations();
   }
 
   void _openAddLocationDialog() {
@@ -47,7 +61,7 @@ class _LocationsPageState extends State<LocationsPage> {
       builder: (context) {
         return LocationFormDialog(
           onSubmit: (name, address) {
-            Navigator.of(context).pop(); // Close dialog
+            Navigator.of(context).pop();
             _addLocation(name, address);
           },
         );
@@ -65,29 +79,29 @@ class _LocationsPageState extends State<LocationsPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
-                columns: const [
-                  DataColumn(label: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
-                  DataColumn(label: Text('Address', style: TextStyle(fontWeight: FontWeight.bold))),
-                ],
-                rows: _locations.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final location = entry.value;
-                  return DataRow(
-                    cells: [
-                      DataCell(Text('${index + 1}')),
-                      DataCell(Text(location.name)),
-                      DataCell(Text(location.address)),
+          : _locations.isEmpty
+              ? const Center(child: Text('No locations found.'))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: PaginatedDataTable(
+                    header: const Text('Your Saved Locations'),
+                    rowsPerPage: _rowsPerPage,
+                    availableRowsPerPage: const [3, 5, 8, 10],
+                    onRowsPerPageChanged: (rows) {
+                      if (rows != null) {
+                        setState(() {
+                          _rowsPerPage = rows;
+                        });
+                      }
+                    },
+                    columns: const [
+                      DataColumn(label: Text('#', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+                      DataColumn(label: Text('Address', style: TextStyle(fontWeight: FontWeight.bold))),
                     ],
-                  );
-                }).toList(),
-              ),
-            ),
+                    source: _dataSource,
+                  ),
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddLocationDialog,
         backgroundColor: Colors.teal,
@@ -95,4 +109,33 @@ class _LocationsPageState extends State<LocationsPage> {
       ),
     );
   }
+}
+
+// Reusable DataTable source
+class LocationDataSource extends DataTableSource {
+  final List<Location> locations;
+
+  LocationDataSource(this.locations);
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= locations.length) return null;
+    final location = locations[index];
+    return DataRow(
+      cells: [
+        DataCell(Text('${index + 1}')),
+        DataCell(Text(location.name)),
+        DataCell(Text(location.address)),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => locations.length;
+
+  @override
+  int get selectedRowCount => 0;
 }
