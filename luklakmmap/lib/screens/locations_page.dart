@@ -75,54 +75,72 @@ class _LocationsPageState extends State<LocationsPage> {
   }
 
   Future<void> _editLocation(Location location) async {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return LocationFormDialog(
-        initialName: location.name,
-        initialAddress: location.address,
-        onSubmit: (newName, newAddress) async {
-          Navigator.of(context).pop();
-          final updatedLocation = Location(
-            id: location.id,
-            name: newName,
-            address: newAddress,
-            immutable: location.immutable
-          );
-          await _databaseService.updateLocation(updatedLocation);
-          await _loadLocations();
-          _filterLocations(_searchQuery);
-        },
-        onDelete: () async {
-          final confirmed = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Delete Location'),
-              content: Text('Are you sure you want to delete "${location.name}"?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(false),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(ctx).pop(true),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text('Delete'),
-                ),
-              ],
+    if (location.immutable) {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Action Not Allowed'),
+          content: Text('You are not allowed to change location "${location.name}".'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
             ),
-          );
+          ],
+        ),
+      );
+      return; // Stop further execution
+    }
 
-          if (confirmed == true) {
-            await _databaseService.deleteLocation(location.id);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return LocationFormDialog(
+          initialName: location.name,
+          initialAddress: location.address,
+          onSubmit: (newName, newAddress) async {
+            Navigator.of(context).pop();
+            final updatedLocation = Location(
+              id: location.id,
+              name: newName,
+              address: newAddress,
+              immutable: location.immutable,
+            );
+            await _databaseService.updateLocation(updatedLocation);
             await _loadLocations();
             _filterLocations(_searchQuery);
-          }
-        },
-      );
-    },
-  );
-}
+          },
+          onDelete: () async {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Delete Location'),
+                content: Text('Are you sure you want to delete "${location.name}"?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('Delete'),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirmed == true) {
+              await _databaseService.deleteLocation(location.id);
+              await _loadLocations();
+              _filterLocations(_searchQuery);
+            }
+          },
+        );
+      },
+    );
+  }
+  
   void _openAddLocationDialog() {
     showDialog(
       context: context,
