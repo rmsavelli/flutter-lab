@@ -26,8 +26,6 @@ class _LocationsPageState extends State<LocationsPage> {
   bool _sortAscending = true;
   String _searchQuery = '';
 
-  bool get _hasSearchResults => _locations.isNotEmpty || _searchQuery.isEmpty;
-
   @override
   void initState() {
     super.initState();
@@ -42,7 +40,7 @@ class _LocationsPageState extends State<LocationsPage> {
       setState(() {
         _allLocations = locations;
         _locations = locations;
-        _dataSource = LocationDataSource(_locations);
+        _dataSource = LocationDataSource(_locations, onRowTap: _editLocation);
         _isLoading = false;
       });
     } catch (e, stack) {
@@ -51,7 +49,7 @@ class _LocationsPageState extends State<LocationsPage> {
       setState(() {
         _allLocations = [];
         _locations = [];
-        _dataSource = LocationDataSource([]);
+        _dataSource = LocationDataSource([], onRowTap: _editLocation);
         _isLoading = false;
       });
     }
@@ -65,7 +63,7 @@ class _LocationsPageState extends State<LocationsPage> {
         final addressMatch = location.address.toLowerCase().contains(query.toLowerCase());
         return nameMatch || addressMatch;
       }).toList();
-      _dataSource = LocationDataSource(_locations);
+      _dataSource = LocationDataSource(_locations, onRowTap: _editLocation);
     });
   }
 
@@ -77,6 +75,28 @@ class _LocationsPageState extends State<LocationsPage> {
     );
     await _loadLocations();
     _filterLocations(_searchQuery);
+  }
+
+  Future<void> _editLocation(Location location) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return LocationFormDialog(
+          initialName: location.name,
+          initialAddress: location.address,
+          onSubmit: (newName, newAddress) async {
+            Navigator.of(context).pop();
+            await _databaseService.updateLocation(
+              id: location.id,
+              name: newName,
+              address: newAddress,
+            );
+            await _loadLocations();
+            _filterLocations(_searchQuery);
+          },
+        );
+      },
+    );
   }
 
   void _openAddLocationDialog() {
@@ -120,6 +140,7 @@ class _LocationsPageState extends State<LocationsPage> {
                   const SizedBox(height: 16),
                   PaginatedDataTable(
                     header: const Text('Your Saved Locations'),
+                    showCheckboxColumn: false,
                     rowsPerPage: _rowsPerPage,
                     availableRowsPerPage: const [3, 5, 8, 10],
                     onRowsPerPageChanged: (rows) {
@@ -180,8 +201,9 @@ class _LocationsPageState extends State<LocationsPage> {
 class LocationDataSource extends DataTableSource {
   List<Location> _locations;
   final List<Location> _original;
+  final void Function(Location) onRowTap;
 
-  LocationDataSource(List<Location> locations)
+  LocationDataSource(List<Location> locations, {required this.onRowTap})
       : _locations = [...locations],
         _original = [...locations];
 
@@ -204,6 +226,7 @@ class LocationDataSource extends DataTableSource {
     if (index >= _locations.length) return null;
     final location = _locations[index];
     return DataRow(
+      onSelectChanged: (_) => onRowTap(location),
       cells: [
         DataCell(Text('${_original.indexOf(_locations[index]) + 1}')),
         DataCell(Text(location.name)),

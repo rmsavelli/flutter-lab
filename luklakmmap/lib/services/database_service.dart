@@ -7,7 +7,6 @@ class DatabaseService {
 
   // FETCHES
 
-  // Fetches a full User object by ID
   Future<app_model.User?> fetchUser(String userId) async {
     final response = await _client
         .from('users')
@@ -18,37 +17,34 @@ class DatabaseService {
     return app_model.User.fromMap(response);
   }
 
-  // Fetches total distance from trips for a given user
   Future<double> fetchTripTotalDistance(String userId) async {
     final response = await _client
       .from('trips')
       .select('distance')
       .eq('user_id', userId);
 
-      double totalDistance = 0.0;
-      for (final trip in response) {
-        totalDistance += (trip['distance'] as num).toDouble();
-      }
+    double totalDistance = 0.0;
+    for (final trip in response) {
+      totalDistance += (trip['distance'] as num).toDouble();
+    }
 
-      return totalDistance;
+    return totalDistance;
   }
 
-  // Fetches total cost from trips for a given user
   Future<double> fetchTripTotalCost(String userId) async {
     final response = await _client
       .from('trips')
       .select('cost')
       .eq('user_id', userId);
 
-      double totalCost = 0.0;
-      for (final trip in response) {
-        totalCost += (trip['cost'] as num).toDouble();
-      }
+    double totalCost = 0.0;
+    for (final trip in response) {
+      totalCost += (trip['cost'] as num).toDouble();
+    }
 
-      return totalCost;
+    return totalCost;
   }
 
-  // Fetches all locations for a given user
   Future<List<Location>> fetchLocations(String userId) async {
     final response = await _client
         .from('locations')
@@ -58,9 +54,8 @@ class DatabaseService {
     return response.map<Location>((item) => Location.fromMap(item)).toList();
   }
 
-// INSERTS
+  // INSERTS
 
-  // Insert a new location in the database
   Future<void> insertLocation({
     required String name,
     required String address,
@@ -71,5 +66,21 @@ class DatabaseService {
       'address': address,
       'user_id': userId,
     });
+  }
+
+  // UPDATE
+
+  Future<void> updateLocation({
+    required int id,
+    required String name,
+    required String address,
+  }) async {
+    await _client
+        .from('locations')
+        .update({
+          'name': name,
+          'address': address,
+        })
+        .eq('id', id);
   }
 }
