@@ -14,12 +14,19 @@ class LocationsPage extends StatefulWidget {
 
 class _LocationsPageState extends State<LocationsPage> {
   final DatabaseService _databaseService = DatabaseService();
+  final TextEditingController _searchController = TextEditingController();
+
+  List<Location> _allLocations = [];
   List<Location> _locations = [];
   late LocationDataSource _dataSource;
+
   int _rowsPerPage = 5;
   bool _isLoading = true;
   int? _sortColumnIndex;
   bool _sortAscending = true;
+  String _searchQuery = '';
+
+  bool get _hasSearchResults => _locations.isNotEmpty || _searchQuery.isEmpty;
 
   @override
   void initState() {
@@ -33,19 +40,33 @@ class _LocationsPageState extends State<LocationsPage> {
       final locations = await _databaseService.fetchLocations(widget.userId);
       debugPrint('Locations loaded: ${locations.length}');
       setState(() {
+        _allLocations = locations;
         _locations = locations;
-        _dataSource = LocationDataSource(locations);
+        _dataSource = LocationDataSource(_locations);
         _isLoading = false;
       });
     } catch (e, stack) {
       debugPrint('Error loading locations: $e');
       debugPrintStack(stackTrace: stack);
       setState(() {
+        _allLocations = [];
         _locations = [];
         _dataSource = LocationDataSource([]);
         _isLoading = false;
       });
     }
+  }
+
+  void _filterLocations(String query) {
+    setState(() {
+      _searchQuery = query;
+      _locations = _allLocations.where((location) {
+        final nameMatch = location.name.toLowerCase().contains(query.toLowerCase());
+        final addressMatch = location.address.toLowerCase().contains(query.toLowerCase());
+        return nameMatch || addressMatch;
+      }).toList();
+      _dataSource = LocationDataSource(_locations);
+    });
   }
 
   Future<void> _addLocation(String name, String address) async {
@@ -55,6 +76,7 @@ class _LocationsPageState extends State<LocationsPage> {
       userId: widget.userId,
     );
     await _loadLocations();
+    _filterLocations(_searchQuery);
   }
 
   void _openAddLocationDialog() {
@@ -81,11 +103,22 @@ class _LocationsPageState extends State<LocationsPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _locations.isEmpty
-              ? const Center(child: Text('No locations found.'))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: PaginatedDataTable(
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      labelText: 'Filter by name or address',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: _filterLocations,
+                  ),
+                  const SizedBox(height: 16),
+                  PaginatedDataTable(
                     header: const Text('Your Saved Locations'),
                     rowsPerPage: _rowsPerPage,
                     availableRowsPerPage: const [3, 5, 8, 10],
@@ -132,7 +165,9 @@ class _LocationsPageState extends State<LocationsPage> {
                     ],
                     source: _dataSource,
                   ),
-                ),
+                ],
+              ),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddLocationDialog,
         backgroundColor: Colors.teal,
