@@ -28,7 +28,6 @@ Table users {
   role            role        [not null]
   name            varchar     [not null]
   email           varchar     [not null, unique]
-  password        varchar     [not null]
   nif             integer     [not null, unique]
   home_address    varchar
   license_plate   varchar     [not null, unique]
