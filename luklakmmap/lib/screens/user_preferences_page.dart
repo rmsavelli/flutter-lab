@@ -98,76 +98,81 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
       appBar: AppBar(
         title: const Text('User Preferences'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              const Text(
-                'Your Current Preferences',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-              ),
-              TextFormField(
-                controller: _nifController,
-                decoration: const InputDecoration(labelText: 'NIF'),
-                validator: (value) => value == null || value.trim().isEmpty ? 'Required' : null,
-              ),
-              TextFormField(
-                controller: _homeAddressController,
-                decoration: const InputDecoration(labelText: 'Home Address'),
-              ),
-              TextFormField(
-                controller: _licensePlateController,
-                decoration: const InputDecoration(labelText: 'License Plate'),
-              ),
-              TextFormField(
-                controller: _targetCostController,
-                decoration: const InputDecoration(labelText: 'Target Cost (€)'),
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
-                controller: _targetDistanceController,
-                decoration: const InputDecoration(labelText: 'Target Distance (km)'),
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
-                controller: _targetRatioController,
-                decoration: const InputDecoration(labelText: 'Target Ratio'),
-              ),
-              const SizedBox(height: 24),
-              Row(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600), // Adjust width to your liking
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: ListView(
                 children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: _handleUpdate,
-                      icon: const Icon(Icons.save),
-                      label: const Text('Update'),
+                  const Text(
+                    'Your Current Preferences',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextButton.icon(
-                      onPressed: _handleCancel,
-                      icon: const Icon(Icons.cancel),
-                      label: const Text('Cancel'),
-                    ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                  ),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(labelText: 'Email'),
+                  ),
+                  TextFormField(
+                    controller: _nifController,
+                    decoration: const InputDecoration(labelText: 'NIF'),
+                    validator: (value) => value == null || value.trim().isEmpty ? 'Required' : null,
+                  ),
+                  TextFormField(
+                    controller: _homeAddressController,
+                    decoration: const InputDecoration(labelText: 'Home Address'),
+                  ),
+                  TextFormField(
+                    controller: _licensePlateController,
+                    decoration: const InputDecoration(labelText: 'License Plate'),
+                  ),
+                  TextFormField(
+                    controller: _targetCostController,
+                    decoration: const InputDecoration(labelText: 'Target Cost (€)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextFormField(
+                    controller: _targetDistanceController,
+                    decoration: const InputDecoration(labelText: 'Target Distance (km)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextFormField(
+                    controller: _targetRatioController,
+                    decoration: const InputDecoration(labelText: 'Target Ratio'),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _handleUpdate,
+                          icon: const Icon(Icons.save),
+                          label: const Text('Update'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextButton.icon(
+                          onPressed: _handleCancel,
+                          icon: const Icon(Icons.cancel),
+                          label: const Text('Cancel'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
