@@ -272,7 +272,6 @@ class _MainPageState extends State<MainPage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // Add travel logic later
               },
               backgroundColor: Colors.teal,
               child: const Icon(Icons.add),
@@ -288,7 +287,6 @@ class _MainPageState extends State<MainPage> {
             body: mainContent,
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // Add travel logic later
               },
               backgroundColor: Colors.teal,
               child: const Icon(Icons.add),

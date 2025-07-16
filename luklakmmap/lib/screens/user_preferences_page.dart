@@ -75,6 +75,8 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
       try {
         await _databaseService.updateUser(widget.userId, updates);
 
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Preferences updated successfully')),
         );
@@ -163,15 +165,6 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
                       label: const Text('Cancel'),
                     ),
                   ),
-                  // const SizedBox(width: 8),
-                  // Expanded(
-                  //   child: TextButton.icon(
-                  //     onPressed: _handleDelete,
-                  //     icon: const Icon(Icons.delete),
-                  //     label: const Text('Delete'),
-                  //     style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  //   ),
-                  // ),
                 ],
               ),
             ],

@@ -89,7 +89,7 @@ class _LocationsPageState extends State<LocationsPage> {
           ],
         ),
       );
-      return; // Stop further execution
+      return;
     }
 
     showDialog(
@@ -140,7 +140,7 @@ class _LocationsPageState extends State<LocationsPage> {
       },
     );
   }
-  
+
   void _openAddLocationDialog() {
     showDialog(
       context: context,
