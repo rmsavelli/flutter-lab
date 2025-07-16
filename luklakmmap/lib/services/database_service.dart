@@ -67,6 +67,13 @@ class DatabaseService {
 
   // UPDATE
 
+  Future<void> updateUser(String userId, Map<String, dynamic> updates) async {
+    await _client
+      .from('users')
+      .update(updates)
+      .eq('id', userId);
+  }
+
   Future<void> updateLocation(Location location) async {
     await _client
       .from('locations')

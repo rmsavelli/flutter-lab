@@ -1,5 +1,6 @@
 import 'login_page.dart';
 import 'locations_page.dart';
+import 'user_preferences_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/user.dart' as app_model;
@@ -116,6 +117,19 @@ class _MainPageState extends State<MainPage> {
                           );
                         },
                       ),
+                      ListTile(
+                        leading: const Icon(Icons.settings),
+                        title: const Text('Preferences'),
+                        onTap: () {
+                          if (!isWideScreen) Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UserPreferencesPage(userId: widget.userId),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -137,6 +151,7 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
     );
+
     final mainContent = isLoading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
@@ -240,6 +255,7 @@ class _MainPageState extends State<MainPage> {
               ],
             ),
           );
+
     return isWideScreen
         ? Scaffold(
             appBar: AppBar(
