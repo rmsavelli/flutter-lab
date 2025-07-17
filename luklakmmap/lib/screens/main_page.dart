@@ -26,6 +26,13 @@ class _MainPageState extends State<MainPage> {
   double totalCost = 0.0;
   double totalDistance = 0.0;
 
+  final DateTime now = DateTime.now();
+  late DateTime selectedMonth = DateTime(now.year, now.month);
+  late List<DateTime> monthOptions = List.generate(5, (index) {
+    final month = DateTime(now.year, now.month - 3 + index);
+    return DateTime(month.year, month.month);
+  });
+
   @override
   void initState() {
     super.initState();
@@ -99,7 +106,6 @@ class _MainPageState extends State<MainPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Top Menu Items
                 Expanded(
                   child: ListView(
                     padding: EdgeInsets.zero,
@@ -133,7 +139,6 @@ class _MainPageState extends State<MainPage> {
                     ],
                   ),
                 ),
-                // Bottom Logout Button
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -167,9 +172,35 @@ class _MainPageState extends State<MainPage> {
                       children: [
                         const Icon(Icons.calendar_month),
                         const SizedBox(width: 8),
-                        Text(
-                          DateFormat.MMMM().format(DateTime.now()),
-                          style: const TextStyle(fontSize: 16),
+                        DropdownButtonHideUnderline(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade400),
+                            ),
+                            child: DropdownButton<DateTime>(
+                              value: selectedMonth,
+                              isDense: true,
+                              icon: const Icon(Icons.arrow_drop_down),
+                              dropdownColor: Colors.white,
+                              style: const TextStyle(color: Colors.black),
+                              items: monthOptions.map((date) {
+                                return DropdownMenuItem<DateTime>(
+                                  value: date,
+                                  child: Text(DateFormat('MMMM/yyyy').format(date)),
+                                );
+                              }).toList(),
+                              onChanged: (newDate) {
+                                if (newDate != null) {
+                                  setState(() {
+                                    selectedMonth = newDate;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -258,6 +289,7 @@ class _MainPageState extends State<MainPage> {
 
     return isWideScreen
         ? Scaffold(
+            backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text(isLoading ? 'Loading...' : 'Welcome, ${user?.name ?? ''}'),
               backgroundColor: Colors.white,
@@ -271,13 +303,13 @@ class _MainPageState extends State<MainPage> {
               ],
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               backgroundColor: Colors.teal,
               child: const Icon(Icons.add),
             ),
           )
         : Scaffold(
+            backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text(isLoading ? 'Loading...' : 'Welcome, ${user?.name ?? ''}'),
               backgroundColor: Colors.white,
@@ -286,8 +318,7 @@ class _MainPageState extends State<MainPage> {
             drawer: Drawer(child: drawerContent),
             body: mainContent,
             floatingActionButton: FloatingActionButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               backgroundColor: Colors.teal,
               child: const Icon(Icons.add),
             ),
