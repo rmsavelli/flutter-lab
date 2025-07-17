@@ -36,13 +36,13 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _loadHeaderData();
+    _loadHeaderData(selectedMonth);
   }
 
-  Future<void> _loadHeaderData() async {
+  Future<void> _loadHeaderData(DateTime month) async {
     final fetchedUser = await _databaseService.fetchUser(widget.userId);
-    final fetchedTotalDistance = await _databaseService.fetchTripTotalDistance(widget.userId);
-    final fetchedTotalCost = await _databaseService.fetchTripTotalCost(widget.userId);
+    final fetchedTotalDistance = await _databaseService.fetchTripTotalDistance(widget.userId, month);
+    final fetchedTotalCost = await _databaseService.fetchTripTotalCost(widget.userId, month);
 
     if (fetchedUser != null && mounted) {
       setState(() {
@@ -197,6 +197,7 @@ class _MainPageState extends State<MainPage> {
                                   setState(() {
                                     selectedMonth = newDate;
                                   });
+                                  _loadHeaderData(newDate);
                                 }
                               },
                             ),

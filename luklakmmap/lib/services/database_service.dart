@@ -17,11 +17,16 @@ class DatabaseService {
     return app_model.User.fromMap(response);
   }
 
-  Future<double> fetchTripTotalDistance(String userId) async {
+  Future<double> fetchTripTotalDistance(String userId, DateTime month) async {
+    final firstDay = DateTime(month.year, month.month, 1);
+    final nextMonth = DateTime(month.year, month.month + 1, 1);
+
     final response = await _client
       .from('trips')
       .select('distance')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .gte('begin_date', firstDay.toIso8601String())
+      .lt('begin_date', nextMonth.toIso8601String());
 
     double totalDistance = 0.0;
     for (final trip in response) {
@@ -31,11 +36,15 @@ class DatabaseService {
     return totalDistance;
   }
 
-  Future<double> fetchTripTotalCost(String userId) async {
+  Future<double> fetchTripTotalCost(String userId, DateTime month) async {
+    final firstDay = DateTime(month.year, month.month, 1);
+    final nextMonth = DateTime(month.year, month.month + 1, 1);
     final response = await _client
       .from('trips')
       .select('cost')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .gte('begin_date', firstDay.toIso8601String())
+      .lt('begin_date', nextMonth.toIso8601String());
 
     double totalCost = 0.0;
     for (final trip in response) {
