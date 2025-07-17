@@ -39,23 +39,34 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _loadHeaderData(selectedMonth);
+    _loadAppData(selectedMonth);
   }
 
-  Future<void> _loadHeaderData(DateTime month) async {
-    final fetchedUser = await _databaseService.fetchUser(widget.userId);
-    final fetchedTotalDistance = await _databaseService.fetchTripTotalDistance(widget.userId, month);
-    final fetchedTotalCost = await _databaseService.fetchTripTotalCost(widget.userId, month);
-    final fetchedTrips = await _databaseService.fetchTripsForMonth(widget.userId, month);
+  Future<void> _loadUser() async {
+    user = await _databaseService.fetchUser(widget.userId);
+  }
 
-    await _loadLocationNames(fetchedTrips);
+  Future<void> _loadTripTotals(DateTime month) async {
+    totalDistance = await _databaseService.fetchTripTotalDistance(widget.userId, month);
+    totalCost = await _databaseService.fetchTripTotalCost(widget.userId, month);
+  }
 
-    if (fetchedUser != null && mounted) {
+  Future<void> _loadTrips(DateTime month) async {
+    trips = await _databaseService.fetchTripsForMonth(widget.userId, month);
+  }
+
+  Future<void> _loadTripsLocationNames() async {
+    await _loadLocationNames(trips);
+  }
+
+  Future<void> _loadAppData(DateTime month) async {
+    await _loadUser();
+    await _loadTrips(month);
+    await _loadTripTotals(month);
+    await _loadTripsLocationNames();
+
+    if (mounted) {
       setState(() {
-        user = fetchedUser;
-        totalCost = fetchedTotalCost;
-        totalDistance = fetchedTotalDistance;
-        trips = fetchedTrips;
         isLoading = false;
       });
     }
@@ -220,7 +231,7 @@ class _MainPageState extends State<MainPage> {
                                   setState(() {
                                     selectedMonth = newDate;
                                   });
-                                  _loadHeaderData(newDate);
+                                  _loadAppData(newDate);
                                 }
                               },
                             ),
