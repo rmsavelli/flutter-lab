@@ -3,6 +3,7 @@ import 'locations_page.dart';
 import 'user_preferences_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../models/trip.dart';
 import '../models/user.dart' as app_model;
 import '../services/auth_service.dart';
 import '../services/database_service.dart';
@@ -23,6 +24,8 @@ class _MainPageState extends State<MainPage> {
   app_model.User? user;
   bool isLoading = true;
 
+  List<Trip> trips = [];
+  Map<int, String> locationNames = {};
   double totalCost = 0.0;
   double totalDistance = 0.0;
 
@@ -43,14 +46,34 @@ class _MainPageState extends State<MainPage> {
     final fetchedUser = await _databaseService.fetchUser(widget.userId);
     final fetchedTotalDistance = await _databaseService.fetchTripTotalDistance(widget.userId, month);
     final fetchedTotalCost = await _databaseService.fetchTripTotalCost(widget.userId, month);
+    final fetchedTrips = await _databaseService.fetchTripsForMonth(widget.userId, month);
+
+    await _loadLocationNames(fetchedTrips);
 
     if (fetchedUser != null && mounted) {
       setState(() {
         user = fetchedUser;
         totalCost = fetchedTotalCost;
         totalDistance = fetchedTotalDistance;
+        trips = fetchedTrips;
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadLocationNames(List<Trip> trips) async {
+    final uniqueLocationIds = <int> {
+      for (var trip in trips) ...[
+        trip.originLocationId,
+        trip.destinationLocationId
+      ]
+    };
+
+    for (var locationId in uniqueLocationIds) {
+      if (!locationNames.containsKey(locationId)) {
+        final name = await _databaseService.fetchLocationName(locationId);
+        locationNames[locationId] = name;
+      }
     }
   }
 
@@ -238,50 +261,19 @@ class _MainPageState extends State<MainPage> {
                       DataColumn(label: Text('Origin', style: TextStyle(fontWeight: FontWeight.bold))),
                       DataColumn(label: Text('Destination', style: TextStyle(fontWeight: FontWeight.bold))),
                     ],
-                    rows: const [
-                      DataRow(cells: [
-                        DataCell(Text('07')),
-                        DataCell(Text('127km (68.98€)')),
-                        DataCell(Text('Team building Porto')),
-                        DataCell(Text('Street 1 door 3')),
-                        DataCell(Text('Street 2 door 7')),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text('08')),
-                        DataCell(Text('93km (50.22€)')),
-                        DataCell(Text('Client meeting')),
-                        DataCell(Text('Street 4 door 1')),
-                        DataCell(Text('Street 5 door 9')),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text('09')),
-                        DataCell(Text('110km (57.40€)')),
-                        DataCell(Text('Conference')),
-                        DataCell(Text('Main Ave 10')),
-                        DataCell(Text('Expo Center Gate B')),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text('10')),
-                        DataCell(Text('75km (39.05€)')),
-                        DataCell(Text('Training session')),
-                        DataCell(Text('Office HQ')),
-                        DataCell(Text('Branch Office')),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text('11')),
-                        DataCell(Text('60km (31.20€)')),
-                        DataCell(Text('Equipment pickup')),
-                        DataCell(Text('Depot A')),
-                        DataCell(Text('Warehouse Z')),
-                      ]),
-                      DataRow(cells: [
-                        DataCell(Text('12')),
-                        DataCell(Text('82km (42.64€)')),
-                        DataCell(Text('Site inspection')),
-                        DataCell(Text('Street 6 door 4')),
-                        DataCell(Text('Street 9 door 2')),
-                      ]),
-                    ],
+                    rows: trips.map((trip) {
+                      final day = DateFormat('dd').format(trip.beginDate);
+                      final distanceStr = '${trip.distance.toStringAsFixed(0)}km (${trip.cost.toStringAsFixed(2)}€)';
+                      final originName = locationNames[trip.originLocationId] ?? '...';
+                      final destinationName = locationNames[trip.destinationLocationId] ?? '...';
+                      return DataRow(cells: [
+                        DataCell(Text(day)),
+                        DataCell(Text(distanceStr)),
+                        DataCell(Text(trip.justification)),
+                        DataCell(Text(originName)),
+                        DataCell(Text(destinationName)),
+                      ]);
+                    }).toList(),
                   ),
                 ),
               ],

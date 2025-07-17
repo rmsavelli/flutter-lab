@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/location.dart';
+import '../models/trip.dart';
 import '../models/user.dart' as app_model;
 
 class DatabaseService {
@@ -15,6 +18,22 @@ class DatabaseService {
         .single();
 
     return app_model.User.fromMap(response);
+  }
+
+  Future<List<Trip>> fetchTripsForMonth(String userId, DateTime month) async {
+    final firstDay = DateTime(month.year, month.month, 1);
+    final nextMonth = DateTime(month.year, month.month + 1, 1);
+
+    final response = await _client
+        .from('trips')
+        .select('id, begin_date, justification, distance, cost, origin_location, destination_location')
+        .eq('user_id', userId)
+        .gte('begin_date', firstDay.toIso8601String())
+        .lt('begin_date', nextMonth.toIso8601String());
+
+    return (response as List)
+        .map((trip) => Trip.fromMap(trip as Map<String, dynamic>))
+        .toList();
   }
 
   Future<double> fetchTripTotalDistance(String userId, DateTime month) async {
@@ -61,6 +80,16 @@ class DatabaseService {
         .eq('user_id', userId);
 
     return response.map<Location>((item) => Location.fromMap(item)).toList();
+  }
+
+  Future<String> fetchLocationName(int locationId) async {
+    final response = await _client
+      .from('locations')
+      .select('name')
+      .eq('id', locationId)
+      .single();
+
+      return response['name'] ?? 'Unknown';
   }
 
   // INSERTS
