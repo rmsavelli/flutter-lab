@@ -295,14 +295,18 @@ class _MainPageState extends State<MainPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(dayStr, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      // No trips for this day
                       if (tripsForDay.isEmpty)
                         Padding(
-                          padding: const EdgeInsets.only(left: 8, bottom: 8),
+                          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
                           child: GestureDetector(
                             onTap: () => _showAddTripDialog(date),
-                            child: Text(
-                              'Tap to add trip',
-                              style: TextStyle(color: Colors.blue.shade700, fontStyle: FontStyle.italic),
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE5E5E5), // mid-gray
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                             ),
                           ),
                         )

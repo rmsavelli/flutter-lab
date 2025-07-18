@@ -52,8 +52,8 @@ class _TripFormDialogState extends State<TripFormDialog> {
     super.initState();
     _selectedDate = widget.initialDate ?? DateTime.now();
     _justificationController = TextEditingController(text: widget.initialJustification ?? '');
-    _distanceController = TextEditingController(text: (widget.initialDistance ?? 0.0).toString());
-    _costController = TextEditingController(text: (widget.initialCost ?? 0.0).toString());
+    _distanceController = TextEditingController(text: (widget.initialDistance ?? 0).toStringAsFixed(0));
+    _costController = TextEditingController(text: (widget.initialCost ?? 0.0).toStringAsFixed(2));
     _originLocationId = widget.initialOriginLocationId;
     _destinationLocationId = widget.initialDestinationLocationId;
   }
@@ -115,7 +115,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(DateFormat('yyyy-MM-dd').format(_selectedDate)),
+                      Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
                       const Icon(Icons.calendar_today, size: 18),
                     ],
                   ),
