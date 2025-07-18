@@ -56,7 +56,17 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _loadTripsLocationNames() async {
-    await _loadLocationNames(trips);
+    final uniqueLocationIds = <int>{
+      for (var trip in trips) ...[
+        trip.originLocationId,
+        trip.destinationLocationId,
+      ]
+    };
+    for (var locationId in uniqueLocationIds) {
+      if (!locationNames.containsKey(locationId)) {
+        locationNames[locationId] = await _databaseService.fetchLocationName(locationId);
+      }
+    }
   }
 
   Future<void> _loadAppData(DateTime month) async {
@@ -72,22 +82,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  Future<void> _loadLocationNames(List<Trip> trips) async {
-    final uniqueLocationIds = <int> {
-      for (var trip in trips) ...[
-        trip.originLocationId,
-        trip.destinationLocationId
-      ]
-    };
-
-    for (var locationId in uniqueLocationIds) {
-      if (!locationNames.containsKey(locationId)) {
-        final name = await _databaseService.fetchLocationName(locationId);
-        locationNames[locationId] = name;
-      }
-    }
-  }
-
   Future<void> _logout() async {
     await _authService.signOut();
     if (mounted) {
@@ -98,10 +92,24 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  List<DateTime> _generateDaysInMonth(DateTime month) {
+    final firstDay = DateTime(month.year, month.month, 1);
+    final nextMonth = DateTime(month.year, month.month + 1, 1);
+    final daysCount = nextMonth.difference(firstDay).inDays;
+    return List.generate(daysCount, (i) => DateTime(month.year, month.month, i + 1));
+  }
+
+  Map<int, List<Trip>> _groupTripsByDay(List<Trip> trips) {
+    final map = <int, List<Trip>>{};
+    for (var trip in trips) {
+      map.putIfAbsent(trip.beginDate.day, () => []).add(trip);
+    }
+    return map;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isWideScreen = MediaQuery.of(context).size.width >= 600;
-
     final remainingCost = user != null ? (user!.targetCost - totalCost) : 0.0;
     final remainingDistance = user != null ? (user!.targetDistance - totalDistance) : 0.0;
 
@@ -119,19 +127,9 @@ class _MainPageState extends State<MainPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    'assets/logo-lukla.png',
-                    height: 40,
-                  ),
+                  Image.asset('assets/logo-lukla.png', height: 40),
                   const SizedBox(height: 12),
-                  const Text(
-                    'KmMap',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const Text('KmMap', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -191,6 +189,9 @@ class _MainPageState extends State<MainPage> {
       ),
     );
 
+    final daysInMonth = _generateDaysInMonth(selectedMonth);
+    final groupedTrips = _groupTripsByDay(trips);
+
     final mainContent = isLoading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
@@ -230,6 +231,7 @@ class _MainPageState extends State<MainPage> {
                                 if (newDate != null) {
                                   setState(() {
                                     selectedMonth = newDate;
+                                    isLoading = true;
                                   });
                                   _loadAppData(newDate);
                                 }
@@ -244,49 +246,65 @@ class _MainPageState extends State<MainPage> {
                       children: [
                         Text(
                           '${remainingCost.toStringAsFixed(2)}€ (${remainingDistance.toStringAsFixed(1)}Km)',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Trips',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
+                const Text('Trips', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    headingRowColor: WidgetStateProperty.all(Colors.grey.shade200),
-                    columnSpacing: 16,
-                    dataRowMinHeight: 48,
-                    columns: const [
-                      DataColumn(label: Text('Day', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('Distance', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('Justification', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('Origin', style: TextStyle(fontWeight: FontWeight.bold))),
-                      DataColumn(label: Text('Destination', style: TextStyle(fontWeight: FontWeight.bold))),
+                // Agenda style list
+                ...daysInMonth.map((date) {
+                  final tripsForDay = groupedTrips[date.day] ?? [];
+                  final dayStr = DateFormat('dd').format(date);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(dayStr, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      if (tripsForDay.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 8, bottom: 8),
+                          child: Text(''),
+                        )
+                      else
+                        ...tripsForDay.map((trip) {
+                          final originName = locationNames[trip.originLocationId] ?? '...';
+                          final destinationName = locationNames[trip.destinationLocationId] ?? '...';
+
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                            title: Text(
+                              trip.justification,
+                              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('From: $originName'),
+                                Text('To: $destinationName'),
+                              ],
+                            ),
+                            trailing: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('${trip.distance.toStringAsFixed(0)} km',
+                                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text('${trip.cost.toStringAsFixed(2)} €',
+                                    style: const TextStyle(color: Colors.black54)),
+                              ],
+                            ),
+                            onTap: () {
+                              // TODO: implement edit/delete
+                            },
+                          );
+                        }).toList(),
+                      const SizedBox(height: 8),
                     ],
-                    rows: trips.map((trip) {
-                      final day = DateFormat('dd').format(trip.beginDate);
-                      final distanceStr = '${trip.distance.toStringAsFixed(0)}km (${trip.cost.toStringAsFixed(2)}€)';
-                      final originName = locationNames[trip.originLocationId] ?? '...';
-                      final destinationName = locationNames[trip.destinationLocationId] ?? '...';
-                      return DataRow(cells: [
-                        DataCell(Text(day)),
-                        DataCell(Text(distanceStr)),
-                        DataCell(Text(trip.justification)),
-                        DataCell(Text(originName)),
-                        DataCell(Text(destinationName)),
-                      ]);
-                    }).toList(),
-                  ),
-                ),
+                  );
+                }).toList(),
               ],
             ),
           );
@@ -300,16 +318,7 @@ class _MainPageState extends State<MainPage> {
               foregroundColor: Colors.black,
             ),
             body: Row(
-              children: [
-                drawerContent,
-                const VerticalDivider(width: 1),
-                Expanded(child: mainContent),
-              ],
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Colors.teal,
-              child: const Icon(Icons.add),
+              children: [drawerContent, const VerticalDivider(width: 1), Expanded(child: mainContent)],
             ),
           )
         : Scaffold(
@@ -321,11 +330,6 @@ class _MainPageState extends State<MainPage> {
             ),
             drawer: Drawer(child: drawerContent),
             body: mainContent,
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Colors.teal,
-              child: const Icon(Icons.add),
-            ),
           );
+        }
   }
-}
