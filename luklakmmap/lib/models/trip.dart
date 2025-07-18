@@ -1,5 +1,5 @@
 class Trip {
-  final int id;
+  final int? id;
   final DateTime beginDate;
   final String justification;
   final double distance;
@@ -8,7 +8,7 @@ class Trip {
   final int destinationLocationId;
 
   Trip({
-    required this.id,
+    this.id,
     required this.beginDate,
     required this.justification,
     required this.distance,

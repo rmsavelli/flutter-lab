@@ -7,6 +7,8 @@ import '../models/trip.dart';
 import '../models/user.dart' as app_model;
 import '../services/auth_service.dart';
 import '../services/database_service.dart';
+import '../widgets/trip_form_dialog.dart';
+
 
 class MainPage extends StatefulWidget {
   final String userId;
@@ -68,6 +70,36 @@ class _MainPageState extends State<MainPage> {
       }
     }
   }
+
+  Future<void> _showAddTripDialog(DateTime date) async {
+  await showDialog(
+    context: context,
+    builder: (_) => TripFormDialog(
+      initialDate: date,
+      onSubmit: ({
+        required DateTime date,
+        required String justification,
+        required double distance,
+        required double cost,
+        required int originLocationId,
+        required int destinationLocationId,
+      }) async {
+        final trip = Trip(
+          beginDate: date,
+          justification: justification,
+          distance: distance,
+          cost: cost,
+          originLocationId: originLocationId,
+          destinationLocationId: destinationLocationId,
+        );
+
+        await _databaseService.insertTrip(trip, widget.userId);
+        _loadAppData(selectedMonth); // Refresh view
+      },
+    ),
+  );
+}
+
 
   Future<void> _loadAppData(DateTime month) async {
     await _loadUser();
@@ -264,9 +296,15 @@ class _MainPageState extends State<MainPage> {
                     children: [
                       Text(dayStr, style: const TextStyle(fontWeight: FontWeight.bold)),
                       if (tripsForDay.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8, bottom: 8),
-                          child: Text(''),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, bottom: 8),
+                          child: GestureDetector(
+                            onTap: () => _showAddTripDialog(date),
+                            child: Text(
+                              'Tap to add trip',
+                              style: TextStyle(color: Colors.blue.shade700, fontStyle: FontStyle.italic),
+                            ),
+                          ),
                         )
                       else
                         ...tripsForDay.map((trip) {
@@ -300,7 +338,7 @@ class _MainPageState extends State<MainPage> {
                               // TODO: implement edit/delete
                             },
                           );
-                        }).toList(),
+                        }),
                       const SizedBox(height: 8),
                     ],
                   );

@@ -103,6 +103,18 @@ class DatabaseService {
     });
   }
 
+  Future<void> insertTrip(Trip trip, String userId) async {
+    await _client.from('trips').insert({
+      'user_id': userId,
+      'begin_date': trip.beginDate.toIso8601String(),
+      'justification': trip.justification,
+      'distance': trip.distance,
+      'cost': trip.cost,
+      'origin_location': trip.originLocationId,
+      'destination_location': trip.destinationLocationId,
+    });
+  }
+
   // UPDATE
 
   Future<void> updateUser(String userId, Map<String, dynamic> updates) async {
