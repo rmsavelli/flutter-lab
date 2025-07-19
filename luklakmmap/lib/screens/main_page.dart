@@ -75,6 +75,7 @@ class _MainPageState extends State<MainPage> {
   await showDialog(
     context: context,
     builder: (_) => TripFormDialog(
+      userId: user!.id,
       initialDate: date,
       onSubmit: ({
         required DateTime date,
@@ -278,7 +279,13 @@ class _MainPageState extends State<MainPage> {
                       children: [
                         Text(
                           '${remainingCost.toStringAsFixed(2)}€ (${remainingDistance.toStringAsFixed(1)}Km)',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: (remainingCost < 0 || remainingDistance < 0)
+                              ? Colors.red
+                              : Colors.black,
+                            ),
                         ),
                       ],
                     ),
@@ -346,7 +353,7 @@ class _MainPageState extends State<MainPage> {
                       const SizedBox(height: 8),
                     ],
                   );
-                }).toList(),
+                }),
               ],
             ),
           );
