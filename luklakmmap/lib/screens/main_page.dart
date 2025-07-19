@@ -298,11 +298,24 @@ class _MainPageState extends State<MainPage> {
                 ...daysInMonth.map((date) {
                   final tripsForDay = groupedTrips[date.day] ?? [];
                   final dayStr = DateFormat('dd').format(date);
+                  final weekdayStr = DateFormat('E').format(date); // e.g. Mon, Tue, etc.
+
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(dayStr, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      // No trips for this day
+                      GestureDetector(
+                        onTap: () => _showAddTripDialog(date),
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            '$dayStr ($weekdayStr)',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
                       if (tripsForDay.isEmpty)
                         Padding(
                           padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
@@ -311,7 +324,7 @@ class _MainPageState extends State<MainPage> {
                             child: Container(
                               height: 40,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE5E5E5), // mid-gray
+                                color: const Color(0xFFE5E5E5),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             ),
