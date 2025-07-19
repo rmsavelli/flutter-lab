@@ -72,35 +72,44 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> _showAddTripDialog(DateTime date) async {
-  await showDialog(
-    context: context,
-    builder: (_) => TripFormDialog(
-      userId: user!.id,
-      initialDate: date,
-      onSubmit: ({
-        required DateTime date,
-        required String justification,
-        required double distance,
-        required double cost,
-        required int originLocationId,
-        required int destinationLocationId,
-      }) async {
-        final trip = Trip(
-          beginDate: date,
-          justification: justification,
-          distance: distance,
-          cost: cost,
-          originLocationId: originLocationId,
-          destinationLocationId: destinationLocationId,
-        );
+    if (date.weekday == DateTime.saturday || date.weekday == DateTime.sunday) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Trips cannot be added on weekends."),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
 
-        await _databaseService.insertTrip(trip, widget.userId);
-        _loadAppData(selectedMonth); // Refresh view
-      },
-    ),
-  );
-}
+    await showDialog(
+      context: context,
+      builder: (_) => TripFormDialog(
+        userId: user!.id,
+        initialDate: date,
+        onSubmit: ({
+          required DateTime date,
+          required String justification,
+          required double distance,
+          required double cost,
+          required int originLocationId,
+          required int destinationLocationId,
+        }) async {
+          final trip = Trip(
+            beginDate: date,
+            justification: justification,
+            distance: distance,
+            cost: cost,
+            originLocationId: originLocationId,
+            destinationLocationId: destinationLocationId,
+          );
 
+          await _databaseService.insertTrip(trip, widget.userId);
+          _loadAppData(selectedMonth); // Refresh view
+        },
+      ),
+    );
+  }
 
   Future<void> _loadAppData(DateTime month) async {
     await _loadUser();
@@ -298,7 +307,11 @@ class _MainPageState extends State<MainPage> {
                 ...daysInMonth.map((date) {
                   final tripsForDay = groupedTrips[date.day] ?? [];
                   final dayStr = DateFormat('dd').format(date);
-                  final weekdayStr = DateFormat('E').format(date); // e.g. Mon, Tue, etc.
+                  final weekdayStr = DateFormat('E').format(date);
+                  final isWeekend = date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+
+                  final labelColor = isWeekend ? Colors.red : Colors.black;
+                  final emptyBoxColor = isWeekend ? const Color(0xFFFFE5E5) : const Color(0xFFE5E5E5);
 
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,9 +322,9 @@ class _MainPageState extends State<MainPage> {
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Text(
                             '$dayStr ($weekdayStr)',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: labelColor,
                             ),
                           ),
                         ),
@@ -324,7 +337,7 @@ class _MainPageState extends State<MainPage> {
                             child: Container(
                               height: 40,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE5E5E5),
+                                color: emptyBoxColor,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             ),
