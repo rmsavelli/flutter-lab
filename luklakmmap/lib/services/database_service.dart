@@ -92,6 +92,21 @@ class DatabaseService {
       return response['name'] ?? 'Unknown';
   }
 
+  Future<Location?> fetchHomeAddressLocation(String userId) async {
+    final response = await _client
+        .from('locations')
+        .select('id, name, address, immutable')
+        .eq('user_id', userId)
+        .eq('name', 'Home Address')
+        .maybeSingle();
+
+    if (response != null) {
+      return Location.fromMap(response);
+    }
+
+    return null;
+  }
+
   // INSERTS
 
   Future<void> insertLocation(Location location, String userId) async {

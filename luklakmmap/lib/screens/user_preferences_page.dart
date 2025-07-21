@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/location.dart';
 import '../services/database_service.dart';
 
 class UserPreferencesPage extends StatefulWidget {
@@ -72,8 +73,25 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
         'target_ratio': _targetRatioController.text.trim(),
       };
 
+      final newHomeAddress = _homeAddressController.text.trim();
+
       try {
         await _databaseService.updateUser(widget.userId, updates);
+        final existingLocation = await _databaseService.fetchHomeAddressLocation(widget.userId);
+
+        if (existingLocation != null) {
+          final newLocation = Location(
+            id: existingLocation.id,
+            name: existingLocation.name,
+            address: newHomeAddress,
+            immutable: true);
+          await _databaseService.updateLocation(newLocation);
+        }
+        else
+        {
+          final newLocation = Location(id: 0, name: "Home Address", address: newHomeAddress, immutable: true);
+          await _databaseService.insertLocation(newLocation, widget.userId);
+        }
 
         if (!mounted) return;
 
