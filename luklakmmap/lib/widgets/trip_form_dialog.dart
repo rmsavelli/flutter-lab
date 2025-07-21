@@ -5,11 +5,11 @@ import '../services/database_service.dart';
 
 class TripFormDialog extends StatefulWidget {
   final String userId;
-
   final DateTime? initialDate;
   final String? initialJustification;
   final double? initialDistance;
   final double? initialCost;
+  final double? targetRatio;
   final int? initialOriginLocationId;
   final int? initialDestinationLocationId;
 
@@ -31,6 +31,7 @@ class TripFormDialog extends StatefulWidget {
     this.initialJustification,
     this.initialDistance,
     this.initialCost,
+    this.targetRatio,
     this.initialOriginLocationId,
     this.initialDestinationLocationId,
     required this.onSubmit,
@@ -61,11 +62,19 @@ class _TripFormDialogState extends State<TripFormDialog> {
     super.initState();
     _selectedDate = widget.initialDate ?? DateTime.now();
     _justificationController = TextEditingController(text: widget.initialJustification ?? '');
-    _distanceController = TextEditingController(text: (widget.initialDistance ?? 0).toStringAsFixed(0));
-    _costController = TextEditingController(text: (widget.initialCost ?? 0.0).toStringAsFixed(2));
+    _distanceController = TextEditingController(text: (widget.initialDistance ?? 0).toStringAsFixed(1));
+    _distanceController.addListener(_updateCostFromDistance);
+    _costController = TextEditingController(text: (widget.initialCost ?? 0).toStringAsFixed(2));
     _originLocationId = widget.initialOriginLocationId;
     _destinationLocationId = widget.initialDestinationLocationId;
     _loadLocations();
+    _updateCostFromDistance();
+  }
+
+  void _updateCostFromDistance() {
+    final distance = double.tryParse(_distanceController.text) ?? 0.0;
+    final cost = distance * (widget.targetRatio ?? 0.0);
+    _costController.text = cost.toStringAsFixed(2);
   }
 
   Future<void> _loadLocations() async {
@@ -78,6 +87,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
       setState(() {
         _allLocations = locations;
         _isLoadingLocations = false;
+        _updateDestinationOptions();
       });
     } catch (e) {
       if (!mounted) return;
@@ -101,6 +111,7 @@ class _TripFormDialogState extends State<TripFormDialog> {
 
   @override
   void dispose() {
+    _distanceController.removeListener(_updateCostFromDistance);
     _justificationController.dispose();
     _distanceController.dispose();
     _costController.dispose();
@@ -162,7 +173,12 @@ class _TripFormDialogState extends State<TripFormDialog> {
                 TextFormField(
                   controller: _costController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Cost (€)'),
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Cost (€)',
+                    filled: true,
+                    fillColor: Color(0xFFE0E0E0),
+                  ),
                 ),
                 if (_isLoadingLocations)
                   const Padding(
@@ -199,7 +215,9 @@ class _TripFormDialogState extends State<TripFormDialog> {
                         child: Text(location.name),
                       );
                     }).toList(),
-                    onChanged: (value) => setState(() => _destinationLocationId = value),
+                    onChanged: _originLocationId != null
+                      ? (value) => setState(() => _destinationLocationId = value)
+                      : null, // disables dropdown when origin not selected
                     validator: (value) => value == null ? 'Select destination' : null,
                   ),
                 ],

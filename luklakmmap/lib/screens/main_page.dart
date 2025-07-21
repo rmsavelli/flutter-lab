@@ -87,6 +87,7 @@ class _MainPageState extends State<MainPage> {
       builder: (_) => TripFormDialog(
         userId: user!.id,
         initialDate: date,
+        targetRatio: double.tryParse(user!.targetRatio) ?? 0.0,
         onSubmit: ({
           required DateTime date,
           required String justification,
@@ -397,6 +398,7 @@ class _MainPageState extends State<MainPage> {
                                     initialJustification: trip.justification,
                                     initialDistance: trip.distance,
                                     initialCost: trip.cost,
+                                    targetRatio: double.tryParse(user!.targetRatio) ?? 0.0,
                                     initialOriginLocationId: trip.originLocationId,
                                     initialDestinationLocationId: trip.destinationLocationId,
                                     onSubmit: ({
