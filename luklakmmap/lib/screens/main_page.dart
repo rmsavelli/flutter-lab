@@ -359,8 +359,9 @@ class _MainPageState extends State<MainPage> {
                             ),
                             onDismissed: (direction) async {
                               await _databaseService.deleteTrip(trip.id!);
-                              _loadAppData(selectedMonth);
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              await _loadAppData(selectedMonth);
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(this.context).showSnackBar(
                                 const SnackBar(content: Text('Trip deleted')),
                               );
                             },

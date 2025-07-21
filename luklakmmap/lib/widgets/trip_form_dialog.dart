@@ -91,7 +91,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
     }
   }
 
-
   void _updateDestinationOptions() {
     setState(() {
       _destinationOptions = _allLocations
@@ -106,18 +105,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
     _distanceController.dispose();
     _costController.dispose();
     super.dispose();
-  }
-
-  void _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-    );
-    if (picked != null) {
-      setState(() => _selectedDate = picked);
-    }
   }
 
   void _submit() {
@@ -142,111 +129,104 @@ class _TripFormDialogState extends State<TripFormDialog> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return AlertDialog(
-    title: Text(widget.initialJustification == null ? 'Add Trip' : 'Edit Trip'),
-    content: SizedBox(
-      width: MediaQuery.of(context).size.width * 0.9,
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              InkWell(
-                onTap: _pickDate,
-                child: InputDecorator(
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.initialJustification == null ? 'Add Trip' : 'Edit Trip'),
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InputDecorator(
                   decoration: const InputDecoration(labelText: 'Date'),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(DateFormat('dd/MM/yyyy').format(_selectedDate)),
-                      const Icon(Icons.calendar_today, size: 18),
-                    ],
+                  child: Text(
+                    DateFormat('dd/MM/yyyy').format(_selectedDate),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
-              ),
-              TextFormField(
-                controller: _justificationController,
-                decoration: const InputDecoration(labelText: 'Justification'),
-                validator: (value) =>
-                    value == null || value.trim().isEmpty ? 'Enter justification' : null,
-              ),
-              TextFormField(
-                controller: _distanceController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Distance (km)'),
-              ),
-              TextFormField(
-                controller: _costController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Cost (€)'),
-              ),
-              if (_isLoadingLocations)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: CircularProgressIndicator(),
-                )
-              else ...[
-                DropdownButtonFormField<int>(
-                  isExpanded: true,
-                  value: _originLocationId,
-                  decoration: const InputDecoration(labelText: 'Origin Location'),
-                  items: _allLocations.map((location) {
-                    return DropdownMenuItem<int>(
-                      value: location.id,
-                      child: Text(location.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _originLocationId = value;
-                      _destinationLocationId = null;
-                      _updateDestinationOptions();
-                    });
-                  },
-                  validator: (value) => value == null ? 'Select origin' : null,
+                TextFormField(
+                  controller: _justificationController,
+                  decoration: const InputDecoration(labelText: 'Justification'),
+                  validator: (value) =>
+                      value == null || value.trim().isEmpty ? 'Enter justification' : null,
                 ),
-                DropdownButtonFormField<int>(
-                  isExpanded: true,
-                  value: _destinationLocationId,
-                  decoration: const InputDecoration(labelText: 'Destination Location'),
-                  items: _destinationOptions.map((location) {
-                    return DropdownMenuItem<int>(
-                      value: location.id,
-                      child: Text(location.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) => setState(() => _destinationLocationId = value),
-                  validator: (value) => value == null ? 'Select destination' : null,
+                TextFormField(
+                  controller: _distanceController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Distance (km)'),
                 ),
+                TextFormField(
+                  controller: _costController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Cost (€)'),
+                ),
+                if (_isLoadingLocations)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: CircularProgressIndicator(),
+                  )
+                else ...[
+                  DropdownButtonFormField<int>(
+                    isExpanded: true,
+                    value: _originLocationId,
+                    decoration: const InputDecoration(labelText: 'Origin Location'),
+                    items: _allLocations.map((location) {
+                      return DropdownMenuItem<int>(
+                        value: location.id,
+                        child: Text(location.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _originLocationId = value;
+                        _destinationLocationId = null;
+                        _updateDestinationOptions();
+                      });
+                    },
+                    validator: (value) => value == null ? 'Select origin' : null,
+                  ),
+                  DropdownButtonFormField<int>(
+                    isExpanded: true,
+                    value: _destinationLocationId,
+                    decoration: const InputDecoration(labelText: 'Destination Location'),
+                    items: _destinationOptions.map((location) {
+                      return DropdownMenuItem<int>(
+                        value: location.id,
+                        child: Text(location.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) => setState(() => _destinationLocationId = value),
+                    validator: (value) => value == null ? 'Select destination' : null,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
-    ),
-    actions: [
-      ElevatedButton(
-        onPressed: _submit,
-        child: const Text('Save'),
-      ),
-      TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text('Cancel'),
-      ),
-      if (widget.onDelete != null)
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            widget.onDelete!();
-          },
-          style: TextButton.styleFrom(foregroundColor: Colors.red),
-          child: const Text('Delete'),
+      actions: [
+        ElevatedButton(
+          onPressed: _submit,
+          child: const Text('Save'),
         ),
-    ],
-  );
-}
-
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        if (widget.onDelete != null)
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              widget.onDelete!();
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+      ],
+    );
+  }
 }
