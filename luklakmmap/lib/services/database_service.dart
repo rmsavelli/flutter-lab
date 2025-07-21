@@ -135,6 +135,20 @@ class DatabaseService {
       .eq('id', location.id);
   }
 
+  Future<void> updateTrip(Trip trip) async {
+  await _client
+      .from('trips')
+      .update({
+        'begin_date': trip.beginDate.toIso8601String(),
+        'justification': trip.justification,
+        'distance': trip.distance,
+        'cost': trip.cost,
+        'origin_location': trip.originLocationId,
+        'destination_location': trip.destinationLocationId,
+      })
+      .eq('id', trip.id!);
+  }
+
   // DELETE
 
   Future<void> deleteLocation(int id) async {
@@ -142,5 +156,12 @@ class DatabaseService {
       .from('locations')
       .delete()
       .eq('id', id);
+  }
+
+  Future<void> deleteTrip(int tripId) async {
+    await _client
+        .from('trips')
+        .delete()
+        .eq('id', tripId);
   }
 }

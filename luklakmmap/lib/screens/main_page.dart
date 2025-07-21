@@ -348,32 +348,85 @@ class _MainPageState extends State<MainPage> {
                           final originName = locationNames[trip.originLocationId] ?? '...';
                           final destinationName = locationNames[trip.destinationLocationId] ?? '...';
 
-                          return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                            title: Text(
-                              trip.justification,
-                              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                          return Dismissible(
+                            key: ValueKey(trip.id),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              color: Colors.red[200],
+                              child: const Icon(Icons.delete, color: Colors.white),
                             ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('From: $originName'),
-                                Text('To: $destinationName'),
-                              ],
-                            ),
-                            trailing: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('${trip.distance.toStringAsFixed(0)} km',
-                                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                                Text('${trip.cost.toStringAsFixed(2)} €',
-                                    style: const TextStyle(color: Colors.black54)),
-                              ],
-                            ),
-                            onTap: () {
-                              // TODO: implement edit/delete
+                            onDismissed: (direction) async {
+                              await _databaseService.deleteTrip(trip.id!);
+                              _loadAppData(selectedMonth);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Trip deleted')),
+                              );
                             },
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                              title: Text(
+                                trip.justification,
+                                style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('From: $originName'),
+                                  Text('To: $destinationName'),
+                                ],
+                              ),
+                              trailing: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('${trip.distance.toStringAsFixed(0)} km',
+                                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Text('${trip.cost.toStringAsFixed(2)} €',
+                                      style: const TextStyle(color: Colors.black54)),
+                                ],
+                              ),
+                              onTap: () async {
+                                await showDialog(
+                                  context: context,
+                                  builder: (_) => TripFormDialog(
+                                    userId: widget.userId,
+                                    initialDate: trip.beginDate,
+                                    initialJustification: trip.justification,
+                                    initialDistance: trip.distance,
+                                    initialCost: trip.cost,
+                                    initialOriginLocationId: trip.originLocationId,
+                                    initialDestinationLocationId: trip.destinationLocationId,
+                                    onSubmit: ({
+                                      required DateTime date,
+                                      required String justification,
+                                      required double distance,
+                                      required double cost,
+                                      required int originLocationId,
+                                      required int destinationLocationId,
+                                    }) async {
+                                      final updatedTrip = Trip(
+                                        id: trip.id,
+                                        beginDate: date,
+                                        justification: justification,
+                                        distance: distance,
+                                        cost: cost,
+                                        originLocationId: originLocationId,
+                                        destinationLocationId: destinationLocationId,
+                                      );
+
+                                      await _databaseService.updateTrip(updatedTrip);
+                                      _loadAppData(selectedMonth);
+                                    },
+                                    onDelete: () async {
+                                      await _databaseService.deleteTrip(trip.id!);
+                                      _loadAppData(selectedMonth);
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           );
                         }),
                       const SizedBox(height: 8),
