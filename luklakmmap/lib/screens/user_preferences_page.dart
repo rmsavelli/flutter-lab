@@ -39,9 +39,9 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
         _nifController.text = user.nif;
         _homeAddressController.text = user.homeAddress ?? '';
         _licensePlateController.text = user.licensePlate ?? '';
-        _targetCostController.text = user.targetCost.toString();
+        _targetCostController.text = user.targetCost.toStringAsFixed(2);
         _targetDistanceController.text = user.targetDistance.toString();
-        _targetRatioController.text = user.targetRatio;
+        _targetRatioController.text = double.tryParse(user.targetRatio)?.toStringAsFixed(2) ?? '0.00';
       });
     }
   }
@@ -117,16 +117,31 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                      filled: true,
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
+                    readOnly: true,
                   ),
                   TextFormField(
                     controller: _emailController,
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      filled: true,
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
+                    readOnly: true,
                   ),
                   TextFormField(
                     controller: _nifController,
-                    decoration: const InputDecoration(labelText: 'NIF'),
+                    decoration: const InputDecoration(
+                      labelText: 'NIF',
+                      filled: true,
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
                     validator: (value) => value == null || value.trim().isEmpty ? 'Required' : null,
+                    readOnly: true,
                   ),
                   TextFormField(
                     controller: _homeAddressController,
@@ -138,17 +153,32 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
                   ),
                   TextFormField(
                     controller: _targetCostController,
-                    decoration: const InputDecoration(labelText: 'Target Cost (€)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Target Cost (€)',
+                      filled: true,
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
                     keyboardType: TextInputType.number,
+                    readOnly: true,
                   ),
                   TextFormField(
                     controller: _targetDistanceController,
-                    decoration: const InputDecoration(labelText: 'Target Distance (km)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Target Distance (km)',
+                      filled: true,
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
                     keyboardType: TextInputType.number,
+                    readOnly: true,
                   ),
                   TextFormField(
                     controller: _targetRatioController,
-                    decoration: const InputDecoration(labelText: 'Target Ratio'),
+                    decoration: const InputDecoration(
+                      labelText: 'Target Ratio',
+                      filled: true,
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
+                    readOnly: true,
                   ),
                   const SizedBox(height: 24),
                   Row(
