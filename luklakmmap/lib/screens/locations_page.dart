@@ -20,7 +20,7 @@ class _LocationsPageState extends State<LocationsPage> {
   List<Location> _locations = [];
   late LocationDataSource _dataSource;
 
-  int _rowsPerPage = 5;
+  int _rowsPerPage = 8;
   bool _isLoading = true;
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -184,7 +184,7 @@ class _LocationsPageState extends State<LocationsPage> {
                     header: const Text('Your Saved Locations'),
                     showCheckboxColumn: false,
                     rowsPerPage: _rowsPerPage,
-                    availableRowsPerPage: const [3, 5, 8, 10],
+                    availableRowsPerPage: const [5, 8, 10, 15],
                     onRowsPerPageChanged: (rows) {
                       if (rows != null) {
                         setState(() {
