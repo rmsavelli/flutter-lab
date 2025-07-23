@@ -92,6 +92,22 @@ class DatabaseService {
       return response['name'] ?? 'Unknown';
   }
 
+  Future<Location> fetchBasedOnLocation(String userId) async {
+    // Fetch user to get `based_on` location name
+    final user = await fetchUser(userId);
+    final basedOnName = user?.basedOn?.trim();
+
+    // Fetch location with that name and user_id
+    final response = await _client
+        .from('locations')
+        .select('id, name, address, immutable')
+        .eq('user_id', userId)
+        .eq('name', basedOnName ?? '')
+        .single();
+
+    return Location.fromMap(response);
+  }
+
   // INSERTS
 
   Future<void> insertLocation(Location location, String userId) async {
