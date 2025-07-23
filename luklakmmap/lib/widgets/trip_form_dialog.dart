@@ -67,7 +67,6 @@ class _TripFormDialogState extends State<TripFormDialog> {
     _originLocationController = TextEditingController();
     _originLocationId = widget.initialOriginLocationId;
     _costController = TextEditingController(text: (widget.initialCost ?? 0).toStringAsFixed(2));
-    _originLocationId = widget.initialOriginLocationId;
     _destinationLocationId = widget.initialDestinationLocationId;
     _loadLocations();
     _updateCostFromDistance();
