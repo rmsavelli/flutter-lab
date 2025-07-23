@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/location.dart';
 import '../services/database_service.dart';
 
 class UserPreferencesPage extends StatefulWidget {
@@ -19,6 +18,7 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nifController = TextEditingController();
   final TextEditingController _homeAddressController = TextEditingController();
+  String? _basedOn = 'Lùkla Lisbon Office';
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _targetCostController = TextEditingController(text: '0.0');
   final TextEditingController _targetDistanceController = TextEditingController(text: '0.0');
@@ -39,6 +39,7 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
         _emailController.text = user.email ?? '';
         _nifController.text = user.nif;
         _homeAddressController.text = user.homeAddress ?? '';
+        _basedOn = user.basedOn ?? '';
         _licensePlateController.text = user.licensePlate ?? '';
         _targetCostController.text = user.targetCost.toStringAsFixed(2);
         _targetDistanceController.text = user.targetDistance.toString();
@@ -52,7 +53,6 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
     _nameController.dispose();
     _emailController.dispose();
     _nifController.dispose();
-    _homeAddressController.dispose();
     _licensePlateController.dispose();
     _targetCostController.dispose();
     _targetDistanceController.dispose();
@@ -67,31 +67,16 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
         'email': _emailController.text.trim(),
         'nif': _nifController.text.trim(),
         'home_address': _homeAddressController.text.trim(),
+        'based_on': _basedOn ?? '',
         'license_plate': _licensePlateController.text.trim(),
         'target_cost': double.tryParse(_targetCostController.text.trim()) ?? 0.0,
         'target_distance': double.tryParse(_targetDistanceController.text.trim()) ?? 0.0,
         'target_ratio': _targetRatioController.text.trim(),
       };
 
-      final newHomeAddress = _homeAddressController.text.trim();
 
       try {
         await _databaseService.updateUser(widget.userId, updates);
-        final existingLocation = await _databaseService.fetchHomeAddressLocation(widget.userId);
-
-        if (existingLocation != null) {
-          final newLocation = Location(
-            id: existingLocation.id,
-            name: existingLocation.name,
-            address: newHomeAddress,
-            immutable: true);
-          await _databaseService.updateLocation(newLocation);
-        }
-        else
-        {
-          final newLocation = Location(id: 0, name: "Home Address", address: newHomeAddress, immutable: true);
-          await _databaseService.insertLocation(newLocation, widget.userId);
-        }
 
         if (!mounted) return;
 
@@ -163,12 +148,33 @@ class _UserPreferencesPageState extends State<UserPreferencesPage> {
                   ),
                   TextFormField(
                     controller: _homeAddressController,
-                    decoration: const InputDecoration(labelText: 'Home Address'),
+                    decoration: const InputDecoration(
+                      labelText: 'Home Address',
+                      fillColor: Color(0xFFE0E0E0),
+                    ),
                   ),
                   TextFormField(
                     controller: _licensePlateController,
                     decoration: const InputDecoration(labelText: 'License Plate'),
                   ),
+                  DropdownButtonFormField<String>(
+                    value: _basedOn,
+                    decoration: const InputDecoration(
+                      labelText: 'Based On',
+                      filled: true,
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Lùkla Lisbon Office',
+                        child: Text('Lùkla Lisbon Office'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Lùkla Porto Office',
+                        child: Text('Lùkla Porto Office'),
+                      ),
+                    ],
+                    onChanged: null,
+                    ),
                   TextFormField(
                     controller: _targetCostController,
                     decoration: const InputDecoration(

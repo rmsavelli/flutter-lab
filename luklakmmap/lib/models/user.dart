@@ -4,6 +4,7 @@ class User {
   final String? email;
   final String nif;
   final String? homeAddress;
+  final String? basedOn;
   final String? licensePlate;
   final double targetCost;
   final double targetDistance;
@@ -15,6 +16,7 @@ class User {
     this.email,
     required this.nif,
     this.homeAddress,
+    this.basedOn,
     this.licensePlate,
     required this.targetCost,
     required this.targetDistance,
@@ -28,6 +30,7 @@ class User {
       email: map['email'] as String?,
       nif: map['nif'] ?? '',
       homeAddress: map['home_address'] as String?,
+      basedOn: map['based_on'] as String?,
       licensePlate: map['license_plate'] as String?,
       targetCost: (map['target_cost'] as num?)?.toDouble() ?? 0.0,
       targetDistance: (map['target_distance'] as num?)?.toDouble() ?? 0.0,

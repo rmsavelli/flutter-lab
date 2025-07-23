@@ -13,7 +13,7 @@ class DatabaseService {
   Future<app_model.User?> fetchUser(String userId) async {
     final response = await _client
         .from('users')
-        .select('id, name, email, nif, home_address, license_plate, target_cost, target_distance, target_ratio')
+        .select('id, name, email, nif, home_address, based_on, license_plate, target_cost, target_distance, target_ratio')
         .eq('id', userId)
         .single();
 
@@ -90,21 +90,6 @@ class DatabaseService {
       .single();
 
       return response['name'] ?? 'Unknown';
-  }
-
-  Future<Location?> fetchHomeAddressLocation(String userId) async {
-    final response = await _client
-        .from('locations')
-        .select('id, name, address, immutable')
-        .eq('user_id', userId)
-        .eq('name', 'Home Address')
-        .maybeSingle();
-
-    if (response != null) {
-      return Location.fromMap(response);
-    }
-
-    return null;
   }
 
   // INSERTS
