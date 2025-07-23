@@ -172,7 +172,7 @@ class _MainPageState extends State<MainPage> {
                 children: [
                   Image.asset('assets/logo-lukla.png', height: 40),
                   const SizedBox(height: 12),
-                  const Text('KmMap', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                  const Text('Travel Expense Report', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -242,7 +242,7 @@ class _MainPageState extends State<MainPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header row
+                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -292,19 +292,88 @@ class _MainPageState extends State<MainPage> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: (remainingCost < 0 || remainingDistance < 0)
-                              ? Colors.red
-                              : Colors.black,
-                            ),
+                            color: (remainingCost < -5.0)
+                                ? Colors.red
+                                : Colors.black,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
+                if (remainingCost >= -5.0 && remainingCost <= 0.0) ...[
+                  const SizedBox(height: 16),
+                  const Text('Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Download PDF pressed')),
+                              );
+                            },
+                            icon: const Icon(Icons.download, color: Colors.white),
+                            label: const Text(
+                              'Download PDF',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2BAE9C),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Upload Signed pressed')),
+                              );
+                            },
+                            icon: const Icon(Icons.upload, color: Colors.white),
+                            label: const Text(
+                              'Upload Signed',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2BAE9C),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
                 const Text('Trips', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),
-                // Agenda style list
+
+                // Agenda List
                 ...daysInMonth.map((date) {
                   final tripsForDay = groupedTrips[date.day] ?? [];
                   final dayStr = DateFormat('dd').format(date);
@@ -362,7 +431,7 @@ class _MainPageState extends State<MainPage> {
                               await _databaseService.deleteTrip(trip.id!);
                               await _loadAppData(selectedMonth);
                               if (!mounted) return;
-                              ScaffoldMessenger.of(this.context).showSnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Trip deleted')),
                               );
                             },
@@ -462,5 +531,5 @@ class _MainPageState extends State<MainPage> {
             drawer: Drawer(child: drawerContent),
             body: mainContent,
           );
-        }
   }
+}
