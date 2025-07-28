@@ -5,6 +5,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
+import '../models/user.dart' as app_model;
+
 
 class PdfHelper {
   Uint8List? modifiedPdfBytes;
@@ -16,19 +18,27 @@ class PdfHelper {
   }
 
   /// Adds "NIF" to PDF report
-  Future<Uint8List> addNIFTextToPdf({
+  Future<Uint8List> addUserDataToPdf({
     required String assetPath,
-    required String text,
+    required app_model.User user,
   }) async {
     final pdfBytes = await _loadPdfFromAssets(assetPath);
     final document = PdfDocument(inputBytes: pdfBytes);
 
     final page = document.pages[0];
+    // NIF
     page.graphics.drawString(
-      text,
+      user.nif,
       PdfStandardFont(PdfFontFamily.helvetica, 9),
       brush: PdfBrushes.black,
       bounds: Rect.fromLTWH(200, 136, 400, 50),
+    );
+    // Name
+    page.graphics.drawString(
+      user.name!,
+      PdfStandardFont(PdfFontFamily.helvetica, 9),
+      brush: PdfBrushes.black,
+      bounds: Rect.fromLTWH(70, 738, 400, 50),
     );
 
     final List<int> bytes = await document.save();

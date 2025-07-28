@@ -319,9 +319,9 @@ class _MainPageState extends State<MainPage> {
                           child: ElevatedButton.icon(
                             onPressed: () async {
                               try {
-                                await _pdfHelper.addNIFTextToPdf(
+                                await _pdfHelper.addUserDataToPdf(
                                   assetPath: 'assets/empty_form.pdf',
-                                  text: '302617132'
+                                  user: user!,
                                 );
 
                                 final path = await _pdfHelper.savePdfToAppDirectory('report.pdf');
