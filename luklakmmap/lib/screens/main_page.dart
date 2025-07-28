@@ -3,6 +3,8 @@ import 'locations_page.dart';
 import 'user_preferences_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import '../helpers/pdf_helper.dart';
 import '../models/trip.dart';
 import '../models/user.dart' as app_model;
 import '../services/auth_service.dart';
@@ -22,6 +24,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final AuthService _authService = AuthService();
   final DatabaseService _databaseService = DatabaseService();
+  final PdfHelper _pdfHelper = PdfHelper();
 
   app_model.User? user;
   bool isLoading = true;
@@ -314,10 +317,24 @@ class _MainPageState extends State<MainPage> {
                         child: SizedBox(
                           height: 48,
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Download PDF pressed')),
-                              );
+                            onPressed: () async {
+                              try {
+                                await _pdfHelper.addNIFTextToPdf(
+                                  assetPath: 'assets/empty_form.pdf',
+                                  text: '302617132'
+                                );
+
+                                final path = await _pdfHelper.savePdfToAppDirectory('report.pdf');
+                                await OpenFile.open(path);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('PDF saved and opened: $path')),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: $e')),
+                                );
+                              }
                             },
                             icon: const Icon(Icons.download, color: Colors.white),
                             label: const Text(

@@ -1,0 +1,54 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+
+
+class PdfHelper {
+  Uint8List? modifiedPdfBytes;
+
+  /// Loads PDF from assets
+  Future<Uint8List> _loadPdfFromAssets(String assetPath) async {
+    final data = await rootBundle.load(assetPath);
+    return data.buffer.asUint8List();
+  }
+
+  /// Adds "NIF" to PDF report
+  Future<Uint8List> addNIFTextToPdf({
+    required String assetPath,
+    required String text,
+  }) async {
+    final pdfBytes = await _loadPdfFromAssets(assetPath);
+    final document = PdfDocument(inputBytes: pdfBytes);
+
+    final page = document.pages[0];
+    page.graphics.drawString(
+      text,
+      PdfStandardFont(PdfFontFamily.helvetica, 9),
+      brush: PdfBrushes.black,
+      bounds: Rect.fromLTWH(200, 136, 400, 50),
+    );
+
+    final List<int> bytes = await document.save();
+    document.dispose();
+
+    modifiedPdfBytes = Uint8List.fromList(bytes);
+    return modifiedPdfBytes!;
+  }
+
+  /// Saves the PDF to app's document directory
+  Future<String> savePdfToAppDirectory(String filename) async {
+    if (modifiedPdfBytes == null) {
+      throw Exception("PDF not modified yet.");
+    }
+
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/$filename';
+
+    final file = File(filePath);
+    await file.writeAsBytes(modifiedPdfBytes!);
+    return filePath;
+  }
+}
