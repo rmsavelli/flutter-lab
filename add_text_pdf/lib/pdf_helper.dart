@@ -16,16 +16,21 @@ class PdfHelper {
   }
 
   /// Adds "Hello World" to the first page of the PDF
-  Future<Uint8List> addTextToPdf(String assetPath) async {
+  Future<Uint8List> addTextToPdf({
+    required String assetPath,
+    required String text,
+    required double x,
+    required double y,
+  }) async {
     final pdfBytes = await _loadPdfFromAssets(assetPath);
     final document = PdfDocument(inputBytes: pdfBytes);
 
     final page = document.pages[0];
     page.graphics.drawString(
-      'Hello World',
+      text,
       PdfStandardFont(PdfFontFamily.helvetica, 24),
       brush: PdfBrushes.black,
-      bounds: const Rect.fromLTWH(100, 100, 200, 50),
+      bounds: Rect.fromLTWH(x, y, 400, 50),
     );
 
     final List<int> bytes = await document.save();

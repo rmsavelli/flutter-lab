@@ -29,7 +29,12 @@ class _PdfEditorPageState extends State<PdfEditorPage> {
 
   Future<void> _onAddTextPressed() async {
     try {
-      await _pdfHelper.addTextToPdf('assets/sample.pdf');
+      await _pdfHelper.addTextToPdf(
+        assetPath: 'assets/sample.pdf',
+        text: 'Hello World!',
+        x: 100,
+        y: 100,
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Text added to PDF successfully!')),
       );
