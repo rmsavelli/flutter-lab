@@ -1,0 +1,15 @@
+create table public.users (
+  id uuid not null default gen_random_uuid (),
+  name text null,
+  email text null,
+  created_at timestamp with time zone not null default now(),
+  target_cost real not null default '0'::real,
+  target_distance real not null default '0'::real,
+  nif text not null default ''::text,
+  home_address text null,
+  license_plate text null,
+  target_ratio text null default '0.0'::text,
+  based_on text null,
+  constraint users_pkey primary key (id),
+  constraint users_id_fkey foreign KEY (id) references auth.users (id) on update CASCADE on delete CASCADE
+) TABLESPACE pg_default;
